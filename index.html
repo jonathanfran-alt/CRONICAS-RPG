@@ -14,7 +14,8 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505;
+            background-color: transparent;
+            /* Alterado para permitir que o fundo fixo apareça */
             color: #e4e4e7;
             overflow: hidden;
         }
@@ -101,6 +102,7 @@
 <body>
     <div id="root"></div>
 
+    <script src="./assets/js/game-lib.js"></script>
     <script type="text/babel">
         /* 
            ================================================================
@@ -109,239 +111,111 @@
            ================================================================
         */
 
-        // --- CONFIGURAÇÕES ---
-        const STORAGE_KEY_V2 = 'cronicas_saves_v2';
+        /* 
+           ================================================================
+           SEÇÃO 1: BANCO DE DADOS DO JOGO
+           MOVIDO PARA: assets/js/game-lib.js
+           ================================================================
+        */
 
-        // --- RAÇAS ---
-        const RACAS = {
-            'Humano': { description: "Versáteis e ambiciosos.", bonus: { forca: 1, habilidade: 1, resistencia: 1, armadura: 1, poderDeFogo: 1 } },
-            'Elfo': { description: "Graciosos e mágicos.", bonus: { habilidade: 2, poderDeFogo: 2, resistencia: -1 } },
-            'Anão': { description: "Robustos mestres da forja.", bonus: { forca: 1, resistencia: 2, armadura: 1, habilidade: -1 } },
-            'Orc': { description: "Guerreiros brutais.", bonus: { forca: 3, resistencia: 1, habilidade: -1, poderDeFogo: -1 } },
-            'Celestial': { description: "Descendência divina.", bonus: { poderDeFogo: 2, habilidade: 1, resistencia: 1 } }
-        };
+        // --- Componente: Card de Feature ---
+        const FeatureCard = ({ title, desc, icon }) => (
+            <div className="bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-6 rounded-xl hover:border-amber-500/50 transition-colors group">
+                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{icon}</div>
+                <h3 className="text-xl font-bold text-amber-500 mb-2 font-medieval">{title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">{desc}</p>
+            </div>
+        );
 
-        // --- CLASSES E EVOLUÇÕES ---
-        const CLASSES = {
-            'Guerreiro': { description: "Combate corpo a corpo.", icon: "⚔️" },
-            'Mago': { description: "Artes arcanas.", icon: "🪄" },
-            'Ladino': { description: "Furtividade e precisão.", icon: "🗡️" },
-            'Paladino': { description: "Guerreiros santos.", icon: "🛡️" },
-            'Necromante': { description: "Magia da morte.", icon: "💀" },
-            'Bardo': { description: "Música e magia.", icon: "🎵" },
-            'Clérigo': { description: "Cura divina.", icon: "✨" },
-            'Druida': { description: "Força da natureza.", icon: "🌿" },
-            'Arqueiro': { description: "Mestre do arco e flecha.", icon: "🏹" },
-            // Evoluções
-            'Cavaleiro': { description: "Mestre do combate.", icon: "🏇" },
-            'Arquimago': { description: "Mestre dos arcanos.", icon: "🔮" },
-            'Assassino': { description: "Mestre das sombras.", icon: "🌑" },
-            'Cruzado': { description: "Campeão divino.", icon: "✝️" },
-            'Lich': { description: "Senhor dos mortos.", icon: "☠️" },
-            'Trovador': { description: "Lenda musical.", icon: "🎶" },
-            'Sumo-Sacerdote': { description: "Voz dos deuses.", icon: "🌟" },
-            'Guardião': { description: "Protetor da floresta.", icon: "🌲" },
-            'Sentinela': { description: "Olhos de águia, mira perfeita.", icon: "🦅" }
-        };
+        // --- Componente: Landing Page (Página Inicial) ---
+        const LandingPage = ({ onNovo, onCarregar, onImportar }) => (
+            <div className="min-h-screen relative overflow-hidden font-sans flex flex-col">
+                {/* Background Imersivo Animado - RPG Theme */}
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1514539079130-25950c84af65?q=80&w=2000')] bg-cover bg-center animate-pulse-slow scale-105"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black"></div>
 
-        const EVOLUCOES = {
-            'Guerreiro': 'Cavaleiro',
-            'Mago': 'Arquimago',
-            'Ladino': 'Assassino',
-            'Paladino': 'Cruzado',
-            'Necromante': 'Lich',
-            'Bardo': 'Trovador',
-            'Clérigo': 'Sumo-Sacerdote',
-            'Druida': 'Guardião',
-            'Arqueiro': 'Sentinela'
-        };
+                {/* Navbar Simples */}
+                <nav className="relative z-20 flex justify-between items-center p-6 w-full max-w-7xl mx-auto">
+                    <div className="text-xl font-bold font-medieval text-amber-500 tracking-widest">CRÔNICAS RPG</div>
+                    <div className="text-xs text-zinc-500 uppercase tracking-widest">Versão 1.2</div>
+                </nav>
 
-        const NIVEL_MAX_CLASSE_BASICA = 20;
+                {/* Hero Section */}
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center p-4 -mt-10 md:-mt-20">
+                    <div className="animate-slide-in">
+                        <h1 className="text-6xl md:text-9xl font-medieval text-transparent bg-clip-text bg-gradient-to-b from-amber-300 to-amber-700 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] mb-2">
+                            CRÔNICAS
+                            <span className="block text-4xl md:text-6xl text-zinc-400 mt-2">DO INFINITO</span>
+                        </h1>
+                        <p className="text-lg md:text-2xl text-zinc-300 font-fantasy tracking-wider mb-8 max-w-3xl mx-auto leading-relaxed shadow-black drop-shadow-md">
+                            A aventura definitiva no seu navegador. <br />
+                            <span className="text-amber-500">Sem installs. Sem downloads. Apenas glória.</span>
+                        </p>
 
-        // --- MAGIAS DISPONÍVEIS NA ACADEMIA ---
-        const MAGIAS_DISPONIVEIS = [
-            { id: 'cura', nome: "Cura Rápida", custo: 100, mana: 3, tipo: 'Cura', poder: 5, desc: "Recupera PV." },
-            { id: 'fogo', nome: "Bola de Fogo", custo: 200, mana: 5, tipo: 'Ataque', poder: 8, desc: "Dano alto de fogo." },
-            { id: 'escudo', nome: "Pele de Pedra", custo: 150, mana: 4, tipo: 'Buff', poder: 0, desc: "+2 Armadura temp." },
-            { id: 'raio', nome: "Relâmpago", custo: 250, mana: 6, tipo: 'Ataque', poder: 10, desc: "Dano elétrico massivo." },
-            { id: 'luz', nome: "Luz Divina", custo: 120, mana: 4, tipo: 'Ataque', poder: 6, desc: "Dano sagrado." }
-        ];
+                        <div className="flex flex-col md:flex-row gap-4 justify-center items-center w-full max-w-lg mx-auto mb-10">
+                            <button onClick={onNovo} className="w-full md:w-auto px-10 py-5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xl rounded-xl shadow-[0_0_30px_rgba(245,158,11,0.3)] transition-all hover:scale-105 border border-amber-400 relative overflow-hidden group">
+                                <span className="relative z-10 flex items-center justify-center gap-2">⚔️ JOGAR AGORA <span className="text-xs opacity-70 block font-normal">(Criar Conta)</span></span>
+                            </button>
 
-        // --- ITENS À VENDA NAS LOJAS ---
-        // --- ITENS À VENDA NAS LOJAS ---
-        const ITENS_LOJA = [
-            // Consumíveis
-            { id: 'pocao', nome: "Poção de Vida", preco: 50, tipo: "Consumivel", efeito: { hp: 10 }, desc: "Recupera 10 PV" },
-            { id: 'mana', nome: "Poção de Mana", preco: 50, tipo: "Consumivel", efeito: { mana: 10 }, desc: "Recupera 10 PM" },
+                            <div className="flex gap-2 w-full md:w-auto">
+                                <button onClick={onCarregar} className="flex-1 px-6 py-5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 font-bold text-lg rounded-xl border border-zinc-700 hover:border-zinc-500 transition-all backdrop-blur-sm">
+                                    CONTINUAR
+                                </button>
+                                <button onClick={onImportar} className="px-6 py-5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 font-bold text-lg rounded-xl border border-zinc-700 hover:border-zinc-500 transition-all backdrop-blur-sm" title="Carregar Arquivo de Save">
+                                    📂
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            // Armas Humanas
-            { id: 'espada_curta', nome: "Espada Curta", preco: 200, tipo: "Arma", bonus: { forca: 1, habilidade: 1 }, desc: "Comum entre humanos." },
-            { id: 'espada_longa', nome: "Espada Longa", preco: 600, tipo: "Arma", bonus: { forca: 3 }, desc: "Lâmina pesada de aço." },
+                {/* News & Features - Subida (padding reduzido) */}
+                <div className="relative z-10 bg-black/80 border-t border-zinc-800 w-full py-10 md:py-12">
+                    <div className="max-w-7xl mx-auto px-6">
+                        <h2 className="text-2xl font-medieval text-center text-zinc-400 mb-8 uppercase tracking-widest"><span className="text-amber-600 mx-2">♦</span> Destaques da Atualização <span className="text-amber-600 mx-2">♦</span></h2>
 
-            // Armas Élficas
-            { id: 'arco_elfico', nome: "Arco Élfico", preco: 500, tipo: "Arma", bonus: { habilidade: 3 }, desc: "Feito de madeira ancestral." },
-            { id: 'laminas_gemeas', nome: "Lâminas Gêmeas", preco: 800, tipo: "Arma", bonus: { habilidade: 2, poderDeFogo: 1 }, desc: "Ágeis e letais." },
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <FeatureCard
+                                icon="🐉"
+                                title="Chefes Lendários"
+                                desc="Enfrente o Dragão Branco nas Montanhas de Gelo e prove seu valor para obter armas divinas."
+                            />
+                            <FeatureCard
+                                icon="💾"
+                                title="Save Portátil"
+                                desc="Seu progresso é seu! Baixe seu save (arquivo) e leve para qualquer computador ou celular."
+                            />
+                            <FeatureCard
+                                icon="🏆"
+                                title="Arena de Combate"
+                                desc="Participe do Grande Campeonato e ganhe prêmios exclusivos testando sua build."
+                            />
+                        </div>
+                    </div>
+                </div>
 
-            // Armas Anãs
-            { id: 'machado_guerra', nome: "Machado de Guerra", preco: 700, tipo: "Arma", bonus: { forca: 4, habilidade: -1 }, desc: "Devastador mas pesado." },
-            { id: 'martelo_forja', nome: "Martelo da Forja", preco: 400, tipo: "Arma", bonus: { forca: 2, resistencia: 1 }, desc: "Ferramenta e arma." },
+                {/* Footer */}
+                <footer className="relative z-10 bg-black py-8 text-center text-zinc-600 text-sm">
+                    <p>&copy; 2026 StudioRPG. Todos os direitos reservados.</p>
+                </footer>
+            </div>
+        );
 
-            // Armas Orcs
-            { id: 'clava_espinhos', nome: "Clava com Espinhos", preco: 300, tipo: "Arma", bonus: { forca: 3, habilidade: -2 }, desc: "Brutalidade pura." },
-            { id: 'machadao_duplo', nome: "Machadão Duplo", preco: 1200, tipo: "Arma", bonus: { forca: 5 }, desc: "Requer muita força." },
-
-            // Equipamento Mágico
-            { id: 'cajado_aprendiz', nome: "Cajado de Aprendiz", preco: 300, tipo: "Arma", bonus: { poderDeFogo: 2 }, desc: "Para iniciantes na magia." },
-            { id: 'varinha_cristal', nome: "Varinha de Cristal", preco: 2500, tipo: "Arma", bonus: { poderDeFogo: 4, mana: 10 }, desc: "Amplifica muito a magia." },
-
-            // Armaduras
-            { id: 'couro', nome: "Armadura de Couro", preco: 300, tipo: "Armadura", bonus: { armadura: 1, habilidade: 1 }, desc: "Leve e flexível." },
-            { id: 'malha', nome: "Cota de Malha", preco: 600, tipo: "Armadura", bonus: { armadura: 3, habilidade: -1 }, desc: "Boa proteção." },
-            { id: 'placas', nome: "Armadura de Placas", preco: 1800, tipo: "Armadura", bonus: { armadura: 5, habilidade: -2 }, desc: "Tanque de guerra ambulante." },
-            { id: 'manto_mago', nome: "Manto Arcano", preco: 1500, tipo: "Armadura", bonus: { armadura: 1, resistencia: 2, mana: 5 }, desc: "Proteção mágica." }
-        ];
-
-        const RANKS_GUILDA = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS'];
-
-        const LOCAIS_FIXOS = [
-            { nome: "Vila Verdejante", tipo: "Vila", bioma: "Planície", descricao: "Uma ilha pacífica cercada pelo mar.", x: 44, y: 74 },
-            { nome: "Floresta Sombria", tipo: "Floresta", bioma: "Sombria", descricao: "Árvores mortas e terras amaldiçoadas.", x: 88, y: 50 },
-            { nome: "Bosque Ancestral", tipo: "Floresta", bioma: "Floresta", descricao: "Árvores gigantes e magia antiga.", x: 36, y: 52 },
-            { nome: "Montanhas de Gelo", tipo: "Montanha", bioma: "Gelo", descricao: "Picos eternamente congelados e perigosos.", x: 62, y: 23 },
-            { nome: "Montanhas de Ferro", tipo: "Montanha", bioma: "Montanha", descricao: "Minas antigas e picos rochosos.", x: 50, y: 15 },
-            { nome: "Pântano da Perdição", tipo: "Pântano", bioma: "Pântano", descricao: "Águas tóxicas e criaturas venenosas.", x: 75, y: 80 },
-            { nome: "Cidadela Real", tipo: "Cidade", bioma: "Urbano", descricao: "A capital do reino, estratégica entre os rios.", x: 50, y: 56 }
-        ];
-
-        const Gerador = {
-            monstro: (nivel, local) => {
-                // Pools de Monstros por Região
-                const POOLS = {
-                    "Vila Verdejante": [
-                        { nome: "Ratataz", baseHp: 10, baseDano: 2, xp: 15, ouro: 5 },
-                        { nome: "Slime", baseHp: 12, baseDano: 2, xp: 18, ouro: 6 },
-                        { nome: "Bandido Pé-de-Chinelo", baseHp: 15, baseDano: 3, xp: 20, ouro: 10 }
-                    ],
-                    "Bosque Ancestral": [
-                        { nome: "Lobo Faminto", baseHp: 25, baseDano: 5, xp: 40, ouro: 8, drop: "Pele de Lobo" },
-                        { nome: "Urso Pardo", baseHp: 60, baseDano: 8, xp: 90, ouro: 15, drop: "Garra de Urso" },
-                        { nome: "Javali Selvagem", baseHp: 35, baseDano: 6, xp: 50, ouro: 10 },
-                        { nome: "Bandido da Estrada", baseHp: 30, baseDano: 5, xp: 45, ouro: 25 }
-                    ],
-                    "Floresta Sombria": [
-                        { nome: "Esqueleto Guerreiro", baseHp: 30, baseDano: 6, xp: 50, ouro: 12, drop: "Osso Antigo" },
-                        { nome: "Aranha Gigante", baseHp: 40, baseDano: 8, xp: 60, ouro: 15, drop: "Veneno de Aranha" },
-                        { nome: "Goblin Saqueador", baseHp: 20, baseDano: 4, xp: 35, ouro: 10 },
-                        { nome: "Espectro", baseHp: 50, baseDano: 10, xp: 120, ouro: 40, drop: "Ectoplasma" },
-                        { nome: "Dragão Jovem", baseHp: 150, baseDano: 15, xp: 400, ouro: 150, drop: "Escama de Dragão" } // Chefe Raro
-                    ],
-                    "Montanhas de Ferro": [
-                        { nome: "Orc Guerreiro", baseHp: 55, baseDano: 9, xp: 85, ouro: 25, drop: "Machado Velho" },
-                        { nome: "Troll da Montanha", baseHp: 120, baseDano: 12, xp: 180, ouro: 50, drop: "Couro de Troll" },
-                        { nome: "Golem de Pedra", baseHp: 150, baseDano: 8, xp: 200, ouro: 80, drop: "Minério de Ferro" }
-                    ],
-                    "Pântano da Perdição": [
-                        { nome: "Slime Tóxico", baseHp: 40, baseDano: 5, xp: 60, ouro: 15 },
-                        { nome: "Cobra Gigante", baseHp: 50, baseDano: 9, xp: 80, ouro: 20, drop: "Presa de Cobra" },
-                        { nome: "Crocodilo Ancião", baseHp: 90, baseDano: 11, xp: 130, ouro: 30, drop: "Couro Rígido" }
-                    ],
-                    "Montanhas de Gelo": [
-                        { nome: "Lobo das Neves", baseHp: 45, baseDano: 7, xp: 65, ouro: 12, drop: "Pele de Lobo Branco" },
-                        { nome: "Yeti", baseHp: 150, baseDano: 15, xp: 300, ouro: 70, drop: "Pele de Yeti" },
-                        { nome: "Elemental de Gelo", baseHp: 110, baseDano: 18, xp: 220, ouro: 50, drop: "Fragmento de Gelo" },
-                        { nome: "Guerreiro Nórdico", baseHp: 60, baseDano: 10, xp: 100, ouro: 40 },
-                        { nome: "Gigante de Gelo", baseHp: 300, baseDano: 25, xp: 700, ouro: 300, drop: "Armadura Congelada" },
-                        { nome: "Dragão Branco", baseHp: 500, baseDano: 35, xp: 1200, ouro: 1000, drop: "Lâmina de Gelo" }
-                    ],
-                    "Cidadela Real": [
-                        { nome: "Rato de Esgoto", baseHp: 15, baseDano: 3, xp: 10, ouro: 2 },
-                        { nome: "Ladrão Urbano", baseHp: 25, baseDano: 5, xp: 40, ouro: 50 }
-                    ]
-                };
-
-                // NÍVEIS MÁXIMOS POR REGIÃO (Para evitar scaling infinito)
-                const LEVEL_CAPS = {
-                    "Vila Verdejante": 5,
-                    "Floresta Sombria": 15,
-                    "Bosque Ancestral": 10,
-                    "Montanhas de Gelo": 35,
-                    "Montanhas de Ferro": 25,
-                    "Pântano da Perdição": 20,
-                    "Cidadela Real": 8 // Área inicial/segura
-                    // Locais sem cap (undefined) escalarão livremente
-                };
-
-                // Seleciona a pool baseada no local, ou usa Bosque como fallback
-                let pool = POOLS[local] || POOLS["Bosque Ancestral"];
-
-                // Escolhe um monstro aleatório
-                const base = pool[Math.floor(Math.random() * pool.length)];
-
-                // Scaling: O monstro escala com o jogador, MAS respeitando o cap da região
-                const capRegiao = LEVEL_CAPS[local] || 999;
-                const nivelEfetivo = Math.min(nivel, capRegiao);
-
-                // Multiplicador de força baseado no nível efetivo
-                const mult = 1 + (nivelEfetivo * 0.15); // +15% status por nível
-
-                // Multiplicador de XP diferenciado (escala mais rápido para acompanhar a curva exponencial)
-                let multXp = 1 + (nivelEfetivo * 0.30); // antes era 0.15
-
-                // Bônus para monstros com drop (Elites/Chefes implícitos)
-                if (base.drop) multXp *= 1.5;
-
-                return {
-                    ...base,
-                    hp: Math.floor(base.baseHp * mult),
-                    maxHp: Math.floor(base.baseHp * mult),
-                    dano: Math.floor(base.baseDano * mult),
-                    xp: Math.floor(base.xp * multXp),
-                    ouro: Math.floor(base.ouro * mult),
-                    uid: Date.now()
-                };
-
-
-            },
-            missao: (rank) => {
-                const tipos = ['Eliminar', 'Coletar'];
-                const alvos = ['Goblin', 'Erva', 'Bandido', 'Relíquia', 'Lobo', 'Orc', 'Slime']; // Singulares para facilitar match
-                const tipo = tipos[Math.floor(Math.random() * tipos.length)];
-                const alvo = alvos[Math.floor(Math.random() * alvos.length)];
-                const rankIdx = RANKS_GUILDA.indexOf(rank);
-                const qtdBase = 3 + (rankIdx * 2); // F:3, E:5, D:7...
-                const qtd = Math.floor(qtdBase + (Math.random() * rankIdx)); // Variação
-
-                return {
-                    id: Math.random(),
-                    titulo: `${tipo} ${alvo}s`,
-                    desc: `A guilda precisa que você vá ${tipo === 'Eliminar' ? 'caçar' : 'buscar'} ${alvo}s nos arredores.`,
-                    rank,
-                    req: qtd,
-                    atual: 0,
-                    xp: 100 * (rankIdx + 1),
-                    ouro: 50 * (rankIdx + 1)
-                };
-            }
-        };
+        // --- Imagens de Bioma ---
+        // MOVIDO PARA game-lib.js
 
         const MenuPrincipal = ({ onNovo, onContinuar, onCarregar, temSave }) => (
             <div className="min-h-screen flex flex-col items-center justify-center bg-black p-4 bg-[url('https://images.unsplash.com/photo-1605806616949-1e87b487bc2a?q=80&w=2560')] bg-cover relative">
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
                 <div className="relative z-10 text-center animate-slide">
-                    <h1 className="text-6xl md:text-8xl font-medieval text-amber-500 mb-2 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]">Crônicas do Infinito</h1>
-                    <p className="text-xl text-zinc-300 tracking-widest uppercase mb-12 font-fantasy">Edição Portátil</p>
+                    <h1 className="text-6xl md:text-8xl font-medieval text-amber-500 mb-2 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)]">Menu Pause</h1>
 
-                    <div className="flex flex-col gap-4 w-full max-w-md mx-auto">
-                        {temSave && (
-                            <button onClick={onContinuar} className="action-btn px-8 py-4 bg-amber-600 hover:bg-amber-500 text-black font-bold rounded-xl text-xl border-2 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                                CONTINUAR
-                            </button>
-                        )}
-                        <button onClick={onNovo} className="action-btn px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-bold rounded-xl text-xl border border-zinc-600">
-                            NOVO JOGO
+                    <div className="flex flex-col gap-4 w-full max-w-md mx-auto mt-12">
+                        <button onClick={onContinuar} className="action-btn px-8 py-4 bg-amber-600 hover:bg-amber-500 text-black font-bold rounded-xl text-xl border-2 border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+                            VOLTAR AO JOGO
                         </button>
-                        <button onClick={onCarregar} className="action-btn px-8 py-4 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 font-bold rounded-xl text-lg border border-zinc-700">
-                            CARREGAR JOGO
+                        <button onClick={onNovo} className="action-btn px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-bold rounded-xl text-xl border border-zinc-600">
+                            MENU INICIAL
                         </button>
                     </div>
                 </div>
@@ -349,13 +223,15 @@
         );
 
         const App = () => {
-            const [view, setView] = React.useState('menu'); // Inicia no menu
+            const [view, setView] = React.useState('landing'); // Começa na Landing Page
+
             const [jogador, setJogador] = React.useState(null);
             const [logs, setLogs] = React.useState([]);
             const [monstros, setMonstros] = React.useState([]);
             const [modal, setModal] = React.useState(null);
-            const [missoesDiponiveis, setMissoesDisponiveis] = React.useState([]);
-            const [versaoSave, setVersaoSave] = React.useState(0); // Para forçar re-render dos saves
+            const [missoesDisponiveis, setMissoesDisponiveis] = React.useState([]);
+            const [versaoSave, setVersaoSave] = React.useState(0);
+            const [saveId, setSaveId] = React.useState(null); // ID do save atual carregado
 
             // --- ESTADO CAMPEONATO ---
             const [campeonatoDisponivel, setCampeonatoDisponivel] = React.useState(false);
@@ -414,17 +290,41 @@
                 const stats = { forca: 1, habilidade: 1, resistencia: 1, armadura: 1, poderDeFogo: 1 };
                 Object.keys(racaData.bonus).forEach(k => stats[k] += racaData.bonus[k]);
 
+                // Aplica Bônus de Classe
+                const classeData = CLASSES[dados.classe];
+                if (classeData.bonus) {
+                    Object.keys(classeData.bonus).forEach(k => stats[k] += classeData.bonus[k]);
+                }
+
+                // Aplica Traços Raciais Iniciais (HP/Mana/Defesa)
+                let hpExtra = 0;
+                let manaExtra = 0;
+
+                // Anão: Pele de Pedra (+20 HP)
+                if (dados.raca === 'Anão') hpExtra += 20;
+
+                // Elfo: Graça Élfica (+10 Mana Inicial)
+                if (dados.raca === 'Elfo') manaExtra += 10;
+
+                // Celestial: Proteção Divina (+2 Arm/Res)
+                // Já vamos aplicar direto nos stats base para simplificar
+                if (dados.raca === 'Celestial') {
+                    stats.armadura += 2;
+                    stats.resistencia += 2;
+                }
+
                 setJogador({
                     nome: dados.nome, raca: dados.raca, classe: dados.classe,
                     nivel: 1, xp: 0, proximoXp: 100,
-                    hp: 20 + (stats.resistencia * 5), maxHp: 20 + (stats.resistencia * 5),
-                    mana: 10 + (stats.resistencia * 5), maxMana: 10 + (stats.resistencia * 5),
-                    ouro: 50, local: "Vila Verdejante", atributosBase: stats,
+                    hp: 20 + (stats.resistencia * 5) + hpExtra, maxHp: 20 + (stats.resistencia * 5) + hpExtra,
+                    mana: 10 + (stats.resistencia * 5) + manaExtra, maxMana: 10 + (stats.resistencia * 5) + manaExtra,
+                    ouro: 70, local: "Vila Verdejante", atributosBase: stats,
                     pontosAtributo: 0, // Pontos livres para distribuir
                     equipamento: { arma: null, armadura: null, acessorio: null },
                     magias: [], inventario: [],
                     rankGuilda: 'F', missoesCompletas: 0, missaoAtiva: null
                 });
+                setSaveId(null); // Novo jogo não tem ID ainda
                 setMonstros([]); // Resetar monstros antigos
                 setMissoesDisponiveis([]); // Resetar missões da guilda
                 setLogs([]); // Limpar logs antigos
@@ -521,16 +421,16 @@
 
             // ... (viajar, explorar... mantem igual mas ATENÇÃO: usar 'atributos' variable calculada em vez de 'jogador.atributos') ...
 
-            const aprenderMagia = (magia) => {
-                if (jogador.ouro < magia.custo) return addLog("Ouro insuficiente.");
-                if (jogador.magias.some(m => m.id === magia.id)) return addLog("Já conhece essa magia.");
+            const aprenderHabilidade = (habilidade) => {
+                if (jogador.ouro < habilidade.custo) return addLog("Ouro insuficiente.");
+                if (jogador.magias.some(m => m.id === habilidade.id)) return addLog("Já conhece essa técnica.");
 
                 setJogador(p => ({
                     ...p,
-                    ouro: p.ouro - magia.custo,
-                    magias: [...p.magias, magia]
+                    ouro: p.ouro - habilidade.custo,
+                    magias: [...p.magias, habilidade]
                 }));
-                addLog(`Aprendeu ${magia.nome}!`, 'magia');
+                addLog(`Aprendeu ${habilidade.nome}!`, 'magia');
             };
 
             // --- Helpers Visuais ---
@@ -548,6 +448,7 @@
                 // Yeti agora como Macaco Branco
                 if (nome.includes("Yeti")) return <span style={estiloBranco}>🦍</span>;
 
+                if (nome.includes("Elemental de Gelo")) return "❄️";
                 if (nome.includes("Elemental")) return <span className="animate-spin text-cyan-200 inline-block">🌀</span>;
 
                 // Guerreiro Nórdico Branco
@@ -565,17 +466,14 @@
 
                 // Goblins e Orcs Verdes
                 if (nome.includes("Goblin")) return <span style={estiloVerde}>👺</span>;
-                if (nome.includes("Orc")) return <span style={estiloVerde}>👹</span>;
-
-                // Troll (Substituto para o emoji novo que falhou) - Usando Zumbi ou Oni com outra cor?
-                // Vamos usar o Oni (👹) mas com cor diferente (Marrom/Verde Escuro) para diferenciar do Orc
-                if (nome.includes("Troll")) return <span style={estiloTroll}>👹</span>;
+                // Troll (Verde)
+                if (nome.includes("Troll")) return <span style={{ filter: 'hue-rotate(120deg)' }}>👹</span>;
 
                 if (nome.includes("Esqueleto") || nome.includes("Espectro")) return "💀";
                 if (nome.includes("Guerreiro") || nome.includes("Bandido")) return "😠";
                 if (nome.includes("Urso")) return "🐻";
                 if (nome.includes("Javali")) return "🐗"; // Novo
-                if (nome.includes("Cobra") || nome.includes("Serpente")) return "�"; // Novo
+                if (nome.includes("Cobra") || nome.includes("Serpente")) return ""; // Novo
                 if (nome.includes("Crocodilo")) return "🐊"; // Novo
                 if (nome.includes("Slime")) return "🧪"; // Novo (ou 🦠)
                 if (nome.includes("Rato") || nome.includes("Ratataz")) return "🐀";
@@ -622,93 +520,111 @@
                 }
             };
 
-            const conjurar = (magia) => {
-                const custo = magia.mana;
-                if (jogador.mana < custo) return addLog("Mana insuficiente!", 'perigo');
-                if (monstros.length === 0 && magia.tipo === 'Ataque') return addLog("Não há inimigos para atacar.");
+            const usarHabilidade = (habilidade) => {
+                const custo = habilidade.mana;
+                if (jogador.mana < custo) return addLog("Energia/Mana insuficiente!", 'perigo');
+
+                const ehAtaque = ['Ataque', 'Físico', 'Mágico'].includes(habilidade.tipo);
+                if (monstros.length === 0 && ehAtaque) return addLog("Não há inimigos para atacar.");
 
                 // Efeito
-                if (magia.tipo === 'Cura') {
-                    const cura = Math.floor(magia.poder * (jogador.nivel / 2 + 1) + atributos.habilidade);
+                if (habilidade.tipo === 'Cura') {
+                    const cura = Math.floor(habilidade.poder * (jogador.nivel / 2 + 1) + atributos.poderDeFogo);
                     setJogador(p => ({
                         ...p,
                         hp: Math.min(p.maxHp, p.hp + cura),
                         mana: p.mana - custo
                     }));
-                    addLog(`Você conjurou ${magia.nome} e recuperou ${cura} PV.`, 'cura');
-                } else if (magia.tipo === 'Ataque') {
+                    addLog(`Usou ${habilidade.nome} e recuperou ${cura} PV.`, 'cura');
+                } else if (ehAtaque) {
                     const alvoIndex = 0;
                     const alvo = monstros[alvoIndex];
-                    // Fórmula Nova: Dano Base da Magia + Atributo Total (Base + Arma)
-                    // Poder de Fogo para magias ofensivas
-                    const danoBase = Math.floor(magia.poder + atributos.poderDeFogo);
+
+                    // Cálculo de Dano: Físico vs Mágico
+                    let atributoBonus = atributos.poderDeFogo;
+                    if (habilidade.tipo === 'Físico') {
+                        atributoBonus = Math.max(atributos.forca, atributos.habilidade); // Usa o maior entre Força e Destreza
+                    }
+
+                    const danoBase = Math.floor(habilidade.poder + atributoBonus);
                     const dano = Math.floor(danoBase * (1 + Math.random() * 0.2)); // Variação de 20%
 
-                    addLog(`Você lançou ${magia.nome} em ${alvo.nome} causando ${dano} de dano!`, 'magia');
+                    addLog(`Usou ${habilidade.nome} em ${alvo.nome} causando ${dano} de dano!`, 'magia');
 
                     const novoHpAlvo = alvo.hp - dano;
                     let novosMonstros = monstros.map((m, i) => i === alvoIndex ? { ...m, hp: novoHpAlvo } : m);
 
                     if (novoHpAlvo <= 0) {
-                        addLog(`${alvo.nome} foi carbonizado!`, 'sucesso');
+                        addLog(`${alvo.nome} foi derrotado!`, 'sucesso');
 
                         if (campeonatoAtivo) {
                             avancarRodadaCampeonato();
-                            return; // Encerra o turno de ataque aqui
+                            setJogador(p => ({ ...p, mana: p.mana - custo })); // Consome mana mesmo se matar
+                            return;
                         }
 
+                        // Lógica de Kill (XP, Drops, Level Up) - Simplificada para não duplicar código
+                        // Idealmente deveria ser uma função helper `processarKill(alvo)`
                         setJogador(p => {
-                            let novaXp = p.xp + alvo.xp;
+                            let gainXp = alvo.xp;
+                            if (p.raca === 'Humano') gainXp = Math.floor(gainXp * 1.10);
+
+                            let novaXp = p.xp + gainXp;
                             let novoNivel = p.nivel;
-                            let novoProximoXp = p.proximoXp; // Initialize with current
+                            let novoProximoXp = p.proximoXp;
                             let msgLevelUp = "";
 
-                            // Lógica de Trava de Nível
                             if (p.nivel >= NIVEL_MAX_CLASSE_BASICA && !p.classeEvoluida) {
-                                if (novaXp >= p.proximoXp) {
-                                    novaXp = p.proximoXp - 1; // Trava XP no máximo do nível
-                                    addLog(`Nível Máximo (${NIVEL_MAX_CLASSE_BASICA}) atingido! Vá à Guilda para evoluir.`, 'perigo');
-                                }
+                                if (novaXp >= p.proximoXp) novaXp = p.proximoXp - 1;
                             }
 
                             if (novaXp >= p.proximoXp) {
                                 novoNivel++;
-                                novaXp = novaXp - p.proximoXp; // Reset XP (overflow)
+                                novaXp = novaXp - p.proximoXp;
                                 novoProximoXp = Math.floor(p.proximoXp * 1.5);
-                                msgLevelUp = `LEVEL UP! Nível ${novoNivel}! (+1 Ponto de Atributo)`;
+                                msgLevelUp = `LEVEL UP! Nível ${novoNivel}!`;
                                 addLog(msgLevelUp, 'sucesso');
+                                setTimeout(() => setModal('levelup'), 500);
                             }
+
+                            const hpFinal = msgLevelUp ? p.maxHp + 10 : p.hp;
+                            const maxHpFinal = msgLevelUp ? p.maxHp + 10 : p.maxHp;
+
                             return {
                                 ...p,
-                                xp: novaXp, proximoXp: novoProximoXp || p.proximoXp, ouro: p.ouro + alvo.ouro, nivel: novoNivel,
-                                pontosAtributo: msgLevelUp ? (p.pontosAtributo || 0) + 1 : (p.pontosAtributo || 0), // Ganha 1 ponto
-                                hp: msgLevelUp ? p.maxHp + 10 : p.hp, maxHp: msgLevelUp ? p.maxHp + 10 : p.maxHp,
-                                mana: msgLevelUp ? p.maxMana + 5 : p.mana - custo, maxMana: msgLevelUp ? p.maxMana + 5 : p.maxMana // Deduz mana se nao upou, recupera se upou
+                                xp: novaXp,
+                                ouro: p.ouro + alvo.ouro,
+                                nivel: novoNivel,
+                                proximoXp: novoProximoXp,
+                                pontosAtributo: msgLevelUp ? (p.pontosAtributo || 0) + 1 : (p.pontosAtributo || 0),
+                                hp: hpFinal,
+                                maxHp: maxHpFinal,
+                                mana: Math.max(0, (msgLevelUp ? p.maxMana + 5 : p.mana) - custo),
+                                maxMana: msgLevelUp ? p.maxMana + (p.raca === 'Elfo' ? 6 : 5) : p.maxMana
                             };
                         });
+
                         novosMonstros = novosMonstros.filter((_, i) => i !== alvoIndex);
                     } else {
-                        // Se não matou, apenas deduz mana (já que o setJogador acima só roda no kill)
+                        // Se não matou, consome mana normal
                         setJogador(p => ({ ...p, mana: p.mana - custo }));
                     }
 
-                    // Contra-ataque
-                    let danoTotal = 0;
-                    novosMonstros.forEach(m => {
-                        const danoM = Math.max(1, m.dano - atributos.armadura);
-                        danoTotal += danoM;
-                        addLog(`${m.nome} atacou! -${danoM} PV`, 'perigo');
-                    });
-                    if (danoTotal > 0) {
-                        setJogador(p => ({ ...p, hp: Math.max(0, p.hp - danoTotal) }));
+                    // Contra-ataque simples se houver sobreviventes
+                    if (novosMonstros.length > 0) {
+                        let danoTotal = 0;
+                        novosMonstros.forEach(m => {
+                            const danoM = Math.max(1, m.dano - atributos.armadura);
+                            danoTotal += danoM;
+                            addLog(`${m.nome} atacou! -${danoM} PV`, 'perigo');
+                        });
+                        if (danoTotal > 0) setJogador(p => ({ ...p, hp: Math.max(0, p.hp - danoTotal) }));
                     }
-
                     setMonstros(novosMonstros);
-                    if (novosMonstros.length === 0 && monstros.length > 0) {
-                        addLog("Inimigos derrotados pela magia!", 'sucesso');
-                    }
-                } else if (magia.tipo === 'Buff') {
-                    addLog("Buffs temporários não implementados ainda.", 'perigo');
+
+                } else if (['Buff', 'DoT', 'Transform', 'Summon'].includes(habilidade.tipo)) {
+                    addLog(`Usou ${habilidade.nome}! (Efeito especial em breve)`, 'magia');
+                    // Efeito placeholder: Recupera um pouco de mana para não gastar à toa? Não, gasta.
                     setJogador(p => ({ ...p, mana: p.mana - custo }));
                 }
             };
@@ -750,8 +666,15 @@
                 const alvo = monstros[alvoIndex];
 
                 // Dano Jogador -> Monstro
-                // Fórmula Nova: Força Total (Base + Arma) + Variação
-                const dano = Math.floor(atributos.forca + (Math.random() * 3)); // Forca direta + 0a3 de sorte
+                // Balanceamento: Usa o MAIOR atributo (Força, Habilidade ou PdF) para não punir Magos/Arqueiros
+                const atributoOfensivo = Math.max(atributos.forca, atributos.habilidade, atributos.poderDeFogo);
+                let dano = Math.floor(atributoOfensivo + (Math.random() * 3));
+
+                // Traço Racial: Orc (Fúria)
+                if (jogador.raca === 'Orc') {
+                    dano += 2; // +2 Dano Fixo
+                }
+
                 const novoHpAlvo = alvo.hp - dano;
 
                 addLog(`Você causou ${dano} de dano em ${alvo.nome}.`);
@@ -770,7 +693,14 @@
 
                     // Drops e XP
                     setJogador(p => {
-                        let novaXp = p.xp + alvo.xp;
+                        let gainXp = alvo.xp;
+
+                        // Traço Racial: Humano (Prodígio)
+                        if (p.raca === 'Humano') {
+                            gainXp = Math.floor(gainXp * 1.10); // +10% XP
+                        }
+
+                        let novaXp = p.xp + gainXp;
                         let novoNivel = p.nivel;
                         let novoProximoXp = p.proximoXp;
                         let msgLevelUp = "";
@@ -785,9 +715,11 @@
 
                         if (novaXp >= p.proximoXp) {
                             novoNivel++;
+                            novaXp = novaXp - p.proximoXp; // Zera a barra (sobra o overflow)
                             novoProximoXp = Math.floor(p.proximoXp * 1.5);
                             msgLevelUp = `LEVEL UP! Nível ${novoNivel}! (+1 Ponto de Atributo)`;
                             addLog(msgLevelUp, 'sucesso');
+                            setTimeout(() => setModal('levelup'), 500); // Trigger modal
                         }
 
                         // Cura no level up
@@ -804,7 +736,7 @@
                             hp: hpFinal,
                             maxHp: maxHpFinal,
                             mana: msgLevelUp ? p.maxMana + 5 : p.mana, // Recupera mana no lvl up
-                            maxMana: msgLevelUp ? p.maxMana + 5 : p.maxMana
+                            maxMana: msgLevelUp ? p.maxMana + (p.raca === 'Elfo' ? 6 : 5) : p.maxMana // Elfo ganha +1 Mapa por nivel (Trait)
                         };
                     });
 
@@ -895,7 +827,7 @@
             };
 
             const abrirGuilda = () => {
-                if (missoesDiponiveis.length === 0) {
+                if (missoesDisponiveis.length === 0) {
                     setMissoesDisponiveis([Gerador.missao(jogador.rankGuilda), Gerador.missao(jogador.rankGuilda), Gerador.missao(jogador.rankGuilda)]);
                 }
 
@@ -993,30 +925,67 @@
                 return saved ? JSON.parse(saved) : [];
             };
 
-            const salvarJogo = () => {
-                const nomeSave = prompt("Nome do Save:", `Save ${jogador.nivel} - ${jogador.classe}`);
-                if (!nomeSave) return;
+            const salvarJogo = (salvarComo = false) => {
+                let nomeSave = `Save ${jogador.nivel} - ${jogador.classe}`;
+                let idParaSalvar = saveId;
+
+                // Se for "Salvar Como" ou se for o primeiro save (sem ID), cria novo
+                if (salvarComo || !idParaSalvar) {
+                    nomeSave = prompt("Nome do Save:", nomeSave);
+                    if (!nomeSave) return;
+                    idParaSalvar = Date.now();
+                }
 
                 const novoSave = {
-                    id: Date.now(),
-                    nome: nomeSave,
+                    id: idParaSalvar,
+                    nome: nomeSave, // Nota: Se sobrescrever, mantemos o nome original ou atualizamos? Simplificação: Se saveComo, usa novo nome. Se overwrite, usa nome antigo? Não, overwrite update timestamp mas nome mantem ou não? 
+                    // Melhor: overwrite mantem o mesmo ID. O nome pode ser atualizado se quisermos, mas como nao pedimos input, mantem o que estava?
+                    // Na logica abaixo, se overwrite, a gente não pediu nome. Então precisamos pegar o nome do save atual se ele existir, ou usar o gerado.
+                    // Ajuste: Se overwrite, não pede nome, então usa o nome que já estava no save OU gera um default.
+                    // Vamos simplificar: Overwrite atualiza os DADOS e DATA, mantendo ID. Nome vamos manter o do save original se possivel, ou atualizar para "Lv X Class".
+                    // Como não temos o nome antigo facil aqui sem buscar, vamos assumir que o usuario nao quer mudar nome no overwrite.
+
                     data: new Date().toISOString(),
                     dados: {
                         jogador: jogador,
-                        missoesDiponiveis: missoesDiponiveis,
-                        logs: logs
+                        missoesDisponiveis: missoesDisponiveis,
+                        logs: logs,
+                        campeonato: {
+                            disponivel: campeonatoDisponivel,
+                            tempo: tempoAteCampeonato,
+                            rodada: rodadaCampeonato,
+                            ativo: campeonatoAtivo
+                        }
                     }
                 };
 
                 const saves = getSaves();
-                saves.unshift(novoSave); // Adiciona no início (mais recente)
 
-                // Limite de 10 saves
-                if (saves.length > 10) saves.pop();
+                if (salvarComo || !saveId) {
+                    // Novo Save
+                    // Novo ID ja gerado acima
+                    saves.unshift(novoSave);
+                    if (saves.length > 10) saves.pop();
+                    addLog("Novo save criado!", 'sucesso');
+                } else {
+                    // Sobrescrever
+                    const index = saves.findIndex(s => s.id === idParaSalvar);
+                    if (index !== -1) {
+                        // Preserva o nome original se for overwrite, a menos que queiramos atualizar status
+                        novoSave.nome = saves[index].nome;
+                        saves.splice(index, 1); // Remove antigo
+                        saves.unshift(novoSave); // Adiciona atualizado no topo
+                        addLog("Jogo salvo com sucesso!", 'sucesso');
+                    } else {
+                        // Fallback: ID perdido, salva como novo
+                        saves.unshift(novoSave);
+                        addLog("ID não encontrado. Salvo como novo arquivo.", 'sucesso');
+                    }
+                }
 
                 localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(saves));
                 setVersaoSave(v => v + 1);
-                addLog("Jogo salvo com sucesso!", 'sucesso');
+                setSaveId(idParaSalvar); // Atualiza ID atual
                 setModal(null);
             };
 
@@ -1027,6 +996,89 @@
                 setVersaoSave(v => v + 1);
             };
 
+            // --- IMPORTAR / EXPORTAR ARQUIVO ---
+            const exportarArquivo = () => {
+                const saves = getSaves();
+                if (saves.length === 0) return alert("Nenhum save para exportar!");
+
+                // Pega o save mais recente (ou todos? Vamos exportar TODOS para garantir backup full)
+                const dataStr = JSON.stringify(saves);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+                const exportFileDefaultName = `cronicas-rpg-backup-${new Date().toISOString().slice(0, 10)}.rpgsave`;
+
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                addLog("Arquivo de save baixado com sucesso!", "sucesso");
+            };
+
+            const importarArquivo = (event) => {
+                const fileObj = event.target.files && event.target.files[0];
+                if (!fileObj) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        console.log("Tentando importar save...");
+                        const json = JSON.parse(e.target.result);
+
+                        // Validação básica: deve ser um array OU um objeto único (para compatibilidade futura/passada)
+                        let savesValidos = [];
+
+                        if (Array.isArray(json)) {
+                            savesValidos = json;
+                        } else if (typeof json === 'object' && json !== null) {
+                            // Se o usuário upou um único save object, encapsula em array
+                            savesValidos = [json];
+                        } else {
+                            throw new Error("Formato inválido: O arquivo deve conter um JSON.");
+                        }
+
+                        // Verifica se tem pelo menos um save com estrutura mínima
+                        // Estrutura V2: { id, nome, dados: { jogador: {...} } }
+                        // Estrutura V1 (Legado/Bug): { id, nome, jogador: {...} } -> Se existir, vamos adaptar
+
+                        // Tentativa de correção automática para formatos antigos ou corrompidos
+                        savesValidos = savesValidos.map(s => {
+                            if (!s.dados && s.jogador) {
+                                // Migrar formato plano para aninhado
+                                return {
+                                    ...s,
+                                    dados: {
+                                        jogador: s.jogador,
+                                        missoesDiponiveis: s.missoesDiponiveis || [],
+                                        logs: s.logs || []
+                                    }
+                                };
+                            }
+                            return s;
+                        });
+
+                        // Validação Final: Primeiro save deve ter jogador
+                        if (!savesValidos[0] || !savesValidos[0].dados || !savesValidos[0].dados.jogador) {
+                            console.error("Conteúdo do JSON inválido:", json);
+                            throw new Error("Dados corrompidos ou formato incompatível. (Objeto jogador não encontrado)");
+                        }
+
+                        // Salva
+                        localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(savesValidos));
+                        setVersaoSave(v => v + 1);
+                        alert("Backup restaurado com sucesso! Clique em 'Continuar' para jogar.");
+
+                    } catch (err) {
+                        console.error("Erro no import:", err);
+                        alert("Erro ao ler arquivo: " + err.message);
+                    }
+                };
+                reader.readAsText(fileObj);
+            };
+
+            // Input Ref para ativar o file dialog via botão customizado
+            const fileInputRef = React.useRef(null);
+            const triggerImport = () => fileInputRef.current.click();
+
 
 
             const carregarSaveEspecifico = (saveData) => {
@@ -1035,9 +1087,24 @@
 
                 if (dados.jogador) {
                     setJogador(dados.jogador);
-                    setMissoesDisponiveis(dados.missoesDiponiveis || []);
+                    setMissoesDisponiveis(dados.missoesDisponiveis || dados.missoesDiponiveis || []);
                     setLogs(dados.logs || []);
+
+                    // Restaurar Campeonato (com default seguro)
+                    if (dados.campeonato) {
+                        setCampeonatoDisponivel(dados.campeonato.disponivel);
+                        setTempoAteCampeonato(dados.campeonato.tempo);
+                        setRodadaCampeonato(dados.campeonato.rodada);
+                        setCampeonatoAtivo(dados.campeonato.ativo);
+                    } else {
+                        // Save antigo sem dados do camp -> Reseta para evitar bugs
+                        setCampeonatoDisponivel(false);
+                        setTempoAteCampeonato(600);
+                        setRodadaCampeonato(0);
+                        setCampeonatoAtivo(false);
+                    }
                     setView('jogo');
+                    setSaveId(saveData.id); // Registra que estamos jogando este save
                     setModal(null);
                     addLog(`Jogo carregado: ${saveData.nome}`, 'sucesso');
                 } else {
@@ -1063,7 +1130,7 @@
 
             const reiniciarJogo = () => {
                 if (confirm("Voltar ao Menu Principal? O progresso não salvo será perdido.")) {
-                    setView('menu');
+                    setView('landing'); // Volta pra Landing
                     setModal(null);
                 }
             };
@@ -1193,10 +1260,10 @@
                 return (
                     <>
                         <MenuPrincipal
-                            onNovo={() => setView('criacao')}
-                            onContinuar={continuarJogo}
+                            onNovo={() => setView('landing')} // Botão "voltar menu"
+                            onContinuar={() => setView('jogo')}
                             onCarregar={abrirMenuCarregar}
-                            temSave={getSaves().length > 0}
+                            temSave={true}
                         />
                         {/* Renderiza o modal de carregar se estiver ativo (mesmo no menu) */}
                         {modal === 'carregar_menu' && (
@@ -1226,8 +1293,62 @@
                                 </div>
                             </div>
                         )}
+
+                        {/* Modal de Importação (Hidden Input) */}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            accept=".rpgsave,.json"
+                            onChange={importarArquivo}
+                        />
                     </>
                 );
+            }
+
+            if (view === 'landing') {
+                return (
+                    <>
+                        <LandingPage
+                            onNovo={() => setView('criacao')}
+                            onCarregar={() => {
+                                if (getSaves().length > 0) abrirMenuCarregar();
+                                else alert("Nenhum save encontrado no navegador. Tente importar um arquivo!");
+                            }}
+                            onImportar={triggerImport}
+                        />
+                        {/* Reutiliza o modal de carregar se precisar mostrar a lista após import */}
+                        {modal === 'carregar_menu' && (
+                            <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-8 z-50">
+                                <div className="bg-zinc-900 border border-amber-500/30 p-6 rounded-2xl w-full max-w-2xl h-full overflow-y-auto relative animate-slide-up">
+                                    <button onClick={() => setModal(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white text-xl">✕</button>
+                                    <h2 className="text-3xl font-fantasy text-amber-500 mb-6 text-center">Carregar Jogo</h2>
+                                    <div className="space-y-4">
+                                        {getSaves().map(save => (
+                                            <div key={save.id} className="bg-zinc-800 p-4 rounded-xl border border-zinc-700 hover:border-amber-500 cursor-pointer transition-all flex justify-between items-center group">
+                                                <div className="flex-1" onClick={() => carregarSaveEspecifico(save)}>
+                                                    <h3 className="font-bold text-lg text-zinc-200 group-hover:text-amber-400">{save.nome}</h3>
+                                                    <p className="text-xs text-zinc-500">{new Date(save.data).toLocaleString()}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={(e) => { e.stopPropagation(); deletarSave(save.id); }} className="p-2 text-zinc-600 hover:text-red-500 transition-colors">🗑️</button>
+                                                    <div className="text-2xl opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => carregarSaveEspecifico(save)}>▶️</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            accept=".rpgsave,.json"
+                            onChange={importarArquivo}
+                        />
+                    </>
+                )
             }
 
             // Modal Especial para Carregar no Menu (Renderizado Condicionalmente se view for menu? Não, o modal é global do App, mas o App renderiza MenuPrincipal OU Jogo.
@@ -1241,51 +1362,136 @@
             // Mas o MenuPrincipal está retornando FULL SCREEN.
             // VOU ALTERAR A ESTRUTURA DO RETURN FINAL.
 
-            if (view === 'criacao') return <CriacaoScreen onCriar={criarPersonagem} />;
+            if (view === 'criacao') return <CriacaoScreen onCriar={criarPersonagem} onVoltar={() => setView('landing')} />;
 
             const localAtual = LOCAIS_FIXOS.find(l => l.nome === jogador.local);
             const ehCidade = localAtual && (localAtual.tipo === 'Cidade' || localAtual.tipo === 'Vila');
 
+            // Determina a imagem de fundo baseada no tipo do local
+            const MODAL_IMAGES = {
+                'taverna': './assets/bg_taverna.png',
+                'loja': './assets/bg_loja.png',
+                'guilda': './assets/bg_guilda.png',
+                'academia': './assets/bg_academia.png',
+                'campeonato': './assets/bg_arena.png'
+            };
+
+            // Determina a imagem de fundo: Se tiver modal específico, usa ele -> senão bioma do local -> senão Padrão
+            const bgImage = (modal && MODAL_IMAGES[modal]) || BIOME_IMAGES[localAtual?.tipo] || BIOME_IMAGES['Padrão'];
+
+            // DEBUG FORCE: Se não achou imagem, alerta no console (já tem) 
+            // Vamos remover a opacidade e o blur pra garantir visibilidade total
+
             return (
-                <div className="h-[100dvh] w-full flex flex-col p-2 md:p-4 gap-2 md:gap-4 bg-slate-900 text-zinc-100">
-                    <div className="flex flex-col md:flex-row gap-4 h-full overflow-hidden">
-                        {/* Sidebar */}
-                        <div className="w-full md:w-64 h-auto md:h-full flex-shrink-0 order-2 md:order-1 max-h-[10vh] md:max-h-full overflow-y-auto glass-card rounded-2xl p-4 flex flex-col gap-4">
-                            <div className="text-center">
-                                <div className="text-4xl mb-2">{CLASSES[jogador.classe].icon}</div>
-                                <h2 className="text-xl font-bold text-amber-500">{jogador.nome}</h2>
-                                <p className="text-xs uppercase text-zinc-400">Nível {jogador.nivel} {jogador.classe}</p>
-                                <div className="text-[10px] mt-1 text-purple-400 font-bold">Guilda Rank {jogador.rankGuilda}</div>
+                <div className="h-[100dvh] w-full flex flex-col p-2 md:p-4 gap-2 md:gap-4 bg-transparent text-zinc-100 relative overflow-hidden transition-all duration-1000">
+
+                    {/* MODAL LEVEL UP */}
+                    {modal === 'levelup' && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fade-in text-center">
+                            <div className="bg-zinc-900 border-2 border-amber-500 w-full h-full md:h-auto md:rounded-xl md:max-w-sm p-6 shadow-[0_0_50px_rgba(245,158,11,0.5)] relative overflow-hidden flex flex-col gap-4">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+                                <div className="mt-4 md:mt-0">
+                                    <h2 className="text-3xl font-medieval text-amber-500 animate-pulse">LEVEL UP!</h2>
+                                    <p className="text-zinc-400">Você alcançou o <strong>Nível {jogador.nivel}</strong>!</p>
+                                </div>
+                                <div className="text-6xl animate-bounce my-2">🆙</div>
+
+                                <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+                                    <div className="text-[10px] uppercase font-bold text-zinc-500">Pontos Disponíveis</div>
+                                    <div className="text-4xl font-bold text-amber-400">{jogador.pontosAtributo}</div>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-2 text-left bg-black/20 p-2 rounded flex-1 overflow-y-auto">
+                                    {['forca', 'armadura', 'habilidade', 'poderDeFogo', 'resistencia'].map(attr => (
+                                        <div key={attr} className="flex justify-between items-center bg-white/5 p-3 rounded hover:bg-white/10 transition-colors">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl">{attr === 'forca' ? '⚔️' : attr === 'armadura' ? '🛡️' : attr === 'habilidade' ? '⚡' : attr === 'poderDeFogo' ? '🔥' : '🔰'}</span>
+                                                <span className="uppercase text-sm font-bold text-zinc-300 w-20">{attr === 'poderDeFogo' ? 'PDF' : attr === 'armadura' ? 'ARM' : attr === 'resistencia' ? 'RES' : attr.substring(0, 3)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <span className="font-bold text-zinc-400 text-lg">{jogador.atributosBase[attr]}</span>
+                                                <button
+                                                    onClick={() => evoluirAtributo(attr)}
+                                                    disabled={jogador.pontosAtributo <= 0}
+                                                    className="w-10 h-10 rounded bg-amber-600 hover:bg-amber-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold text-black shadow-lg text-lg"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={() => setModal(null)} className="w-full py-4 md:py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-lg font-bold text-zinc-300 hover:text-white transition-colors text-lg md:text-base mb-4 md:mb-0">
+                                    FECHAR
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* Camada de Fundo Real (Fixed para garantir que cubra tura) */}
+                    <div className="fixed inset-0 z-[-10] bg-black">
+                        <img
+                            src={bgImage}
+                            alt="Background"
+                            className="w-full h-full object-cover opacity-80 transition-all duration-1000"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/70"></div>
+                    </div>
+
+                    {/* Debug Invisível (Console) */}
+                    <div className="hidden">{jogador.local} - {localAtual?.tipo} - {bgImage}</div>
+
+                    <div className="flex flex-col md:flex-row gap-2 md:gap-4 h-full overflow-hidden relative z-10">
+                        {/* Sidebar Responsiva */}
+                        <div className="w-full md:w-64 h-auto md:h-full flex-shrink-0 order-2 md:order-1 max-h-[35vh] md:max-h-full overflow-y-auto glass-card rounded-t-2xl md:rounded-2xl p-3 md:p-4 flex flex-col gap-2 md:gap-4 no-scrollbar">
+                            <div className="flex md:block items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 md:block md:text-center">
+                                    <div className="text-3xl md:text-4xl">{CLASSES[jogador.classe].icon}</div>
+                                    <div className="md:mt-2">
+                                        <h2 className="text-lg md:text-xl font-bold text-amber-500 leading-tight">{jogador.nome}</h2>
+                                        <p className="text-[10px] md:text-xs uppercase text-zinc-400">Nvl {jogador.nivel} {jogador.classe}</p>
+                                    </div>
+                                </div>
+                                {/* Dinheiro no Mobile fica aqui do lado */}
+                                <div className="md:hidden text-right p-2 bg-amber-900/20 rounded border border-amber-500/20 text-amber-400 font-bold text-sm">
+                                    💰 {jogador.ouro}
+                                </div>
                             </div>
 
-                            <div className="space-y-2 text-sm">
+                            <div className="space-y-1.5 md:space-y-2 text-sm">
+                                {jogador.pontosAtributo > 0 && (
+                                    <button onClick={() => setModal('levelup')} className="w-full py-2 text-xs bg-amber-900/80 hover:bg-amber-800 text-amber-100 border border-amber-500/50 rounded animate-pulse flex items-center justify-center gap-2 font-bold shadow-lg shadow-amber-900/20">
+                                        <span>✨</span> {jogador.pontosAtributo} PONTOS
+                                    </button>
+                                )}
                                 <Barra label="PV" atual={jogador.hp} max={jogador.maxHp} cor="bg-red-600" />
-                                <Barra label="PM" atual={jogador.mana} max={jogador.maxMana} cor="bg-blue-600" />
+                                <Barra label={CLASSES[jogador.classe]?.recurso?.nome || "PM"} atual={jogador.mana} max={jogador.maxMana} cor={CLASSES[jogador.classe]?.recurso?.cor || "bg-blue-600"} />
                                 <Barra label="XP" atual={jogador.xp} max={jogador.proximoXp} cor="bg-purple-600" />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                            <div className="grid grid-cols-4 md:grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
                                 <Stat icone="⚔️" valor={atributos.forca} label="FOR" />
                                 <Stat icone="🛡️" valor={atributos.armadura} label="ARM" />
                                 <Stat icone="⚡" valor={atributos.habilidade} label="HAB" />
                                 <Stat icone="🔥" valor={atributos.poderDeFogo} label="PDF" />
+                                <div className="col-span-4 md:col-span-2">
+                                    <Stat icone="🔰" valor={atributos.resistencia} label="RES" />
+                                </div>
                             </div>
 
-                            {jogador.missaoAtiva && (
-                                <div className="p-2 bg-blue-900/30 border border-blue-500/30 rounded text-xs">
-                                    <h4 className="font-bold text-blue-300">Missão Ativa:</h4>
-                                    <p>{jogador.missaoAtiva.titulo}</p>
-                                    <p className="text-right">{jogador.missaoAtiva.atual}/{jogador.missaoAtiva.req}</p>
-                                </div>
-                            )}
+                            {/* BOTÕES DE AÇÃO RESTAURADOS */}
+                            <div className="flex gap-2 mt-auto">
+                                <button onClick={() => setModal('inventario')} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-lg font-bold flex items-center justify-center gap-2 hover:border-amber-500 transition-all text-xs md:text-sm">
+                                    🎒 <span className="hidden md:inline">MOCHILA</span>
+                                </button>
+                                <button onClick={() => setModal('sistema')} className="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-lg font-bold flex items-center justify-center gap-2 hover:border-zinc-500 transition-all text-xs text-zinc-400">
+                                    ⚙️
+                                </button>
+                            </div>
 
-                            <button onClick={() => setModal('inventario')} className="mt-auto w-full py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 rounded-lg font-bold flex items-center justify-center gap-2 hover:border-amber-500 transition-all">
-                                🎒 MOCHILA
-                            </button>
-                            <button onClick={() => setModal('sistema')} className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 rounded-lg font-bold flex items-center justify-center gap-2 hover:border-zinc-500 transition-all text-xs text-zinc-400">
-                                ⚙️ OPÇÕES
-                            </button>
-                            <div className="text-center p-2 bg-amber-900/20 rounded border border-amber-500/20 text-amber-400 font-bold">
+                            <div className="hidden md:block text-center p-2 bg-amber-900/20 rounded border border-amber-500/20 text-amber-400 font-bold">
                                 💰 {jogador.ouro}
                             </div>
                         </div>
@@ -1293,22 +1499,22 @@
                         {/* Main Area */}
                         <div className="flex-1 flex flex-col gap-2 md:gap-4 relative order-1 md:order-2 overflow-hidden min-h-0">
                             {/* Header Loc */}
-                            <div className="glass-card p-4 rounded-xl flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div>
+                            <div className="glass-card p-4 rounded-xl flex flex-row justify-between items-center gap-4">
+                                <div className="min-w-fit">
                                     <h1 className="text-2xl font-fantasy text-amber-100">{jogador.local}</h1>
                                     <p className="text-xs text-zinc-400">{localAtual?.descricao}</p>
                                 </div>
-                                <div className="flex gap-2 flex-wrap justify-center md:justify-end">
+                                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scroll-hide justify-start md:justify-end">
                                     {ehCidade && (
                                         <>
-                                            <BtnCidade icone="🛒" label="Loja" onClick={() => setModal('loja')} />
-                                            <BtnCidade icone="📜" label="Guilda" onClick={abrirGuilda} />
-                                            <BtnCidade icone="🎓" label="Academia" onClick={() => setModal('academia')} />
-                                            <BtnCidade icone="🍺" label="Taverna" onClick={abrirTaverna} />
+                                            <BtnCidade icone="🛒" label="Loja" onClick={() => setModal('loja')} disabled={monstros.length > 0} />
+                                            <BtnCidade icone="📜" label="Guilda" onClick={abrirGuilda} disabled={monstros.length > 0} />
+                                            <BtnCidade icone="🎓" label="Habilidades" onClick={() => setModal('academia')} disabled={monstros.length > 0} />
+                                            <BtnCidade icone="🍺" label="Taverna" onClick={abrirTaverna} disabled={monstros.length > 0} />
 
                                             {/* BOTÃO DO CAMPEONATO */}
                                             {campeonatoDisponivel ? (
-                                                <button onClick={() => setModal('campeonato')} className="flex items-center gap-2 bg-gradient-to-r from-yellow-700 to-yellow-500 hover:from-yellow-600 hover:to-yellow-400 px-3 py-2 rounded-lg border-2 border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse transition-all text-sm font-bold text-black flex-1 md:flex-none justify-center">
+                                                <button disabled={monstros.length > 0} onClick={() => setModal('campeonato')} className={`flex items-center gap-2 bg-gradient-to-r from-yellow-700 to-yellow-500 hover:from-yellow-600 hover:to-yellow-400 px-3 py-2 rounded-lg border-2 border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse transition-all text-sm font-bold text-black flex-1 md:flex-none justify-center ${monstros.length > 0 ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}>
                                                     <span className="text-lg">🏆</span> <span className="inline">CAMP.</span>
                                                 </button>
                                             ) : (
@@ -1318,12 +1524,12 @@
                                             )}
                                         </>
                                     )}
-                                    <BtnCidade icone="🗺️" label="Viajar" onClick={() => setModal('mapa')} />
+                                    <BtnCidade icone="🗺️" label="Viajar" onClick={() => setModal('mapa')} disabled={monstros.length > 0} />
                                 </div>
                             </div>
 
                             {/* Game Area */}
-                            <div className="flex-1 glass-card rounded-xl overflow-y-auto relative bg-gradient-to-b from-slate-900 to-black flex flex-col scroll-hide min-h-0">
+                            <div className="flex-1 glass-card rounded-xl overflow-y-auto relative bg-black/40 flex flex-col scroll-hide min-h-0 border border-white/5 backdrop-blur-[2px]">
                                 {monstros.length > 0 ? (
                                     <div className="flex-1 flex flex-col p-4 relative">
 
@@ -1362,18 +1568,18 @@
                                         <div className="flex-1"></div>
 
                                         {/* ÁREA DO JOGADOR (BAIXO ESQUERDA) */}
-                                        <div className="flex justify-between items-end animate-slide-up">
-                                            <div className="relative">
+                                        <div className="flex flex-col md:flex-row justify-between items-center md:items-end animate-slide-up gap-4 md:gap-0 mt-4 md:mt-0">
+                                            <div className="relative order-2 md:order-1">
                                                 {/* Visual do Jogador */}
-                                                <div className="text-5xl relative z-10 transform scale-x-[-1] ml-2">
-                                                    {jogador.classe === 'Guerreiro' ? '🛡️' : jogador.classe === 'Mago' ? '🧙‍♂️' : '🗡️'}
+                                                <div className="text-6xl md:text-5xl relative z-10 transform scale-x-[-1] ml-2">
+                                                    {CLASSES[jogador.classe]?.icon || '🗡️'}
                                                 </div>
                                                 <div className="w-full h-3 bg-black/40 blur-md absolute bottom-1 rounded-[100%] ml-2"></div>
                                             </div>
 
                                             {/* Status Card e Controles */}
-                                            <div className="flex-1 ml-4 max-w-[200px]">
-                                                <div className="bg-zinc-900/90 border border-amber-500/30 p-2 rounded-lg shadow-2xl backdrop-blur-sm mb-2">
+                                            <div className="flex-1 w-full md:w-auto md:ml-4 max-w-[300px] order-1 md:order-2">
+                                                <div className="bg-zinc-900/90 border border-amber-500/30 p-3 rounded-lg shadow-2xl backdrop-blur-sm mb-2">
                                                     <div className="flex justify-between items-baseline mb-1">
                                                         <span className="font-bold text-sm text-amber-500 truncate">{jogador.nome}</span>
                                                         <span className="text-[9px] text-zinc-400">Nvl {jogador.nivel}</span>
@@ -1387,33 +1593,38 @@
                                                         </div>
                                                     </div>
 
-                                                    {/* Barra PM */}
+                                                    {/* Barra RESOURCE */}
                                                     <div className="flex items-center gap-1 mb-2">
-                                                        <span className="text-[8px] font-bold w-3 text-blue-300">PM</span>
+                                                        <span className={`text-[8px] font-bold w-3 ${CLASSES[jogador.classe]?.recurso?.cor.replace('bg-', 'text-').replace('600', '300') || 'text-blue-300'}`}>{CLASSES[jogador.classe]?.recurso?.nome.substring(0, 2) || "PM"}</span>
                                                         <div className="flex-1 h-1.5 bg-zinc-800 rounded-full border border-zinc-700 overflow-hidden relative">
-                                                            <div className="h-full bg-blue-600 absolute transition-all duration-500" style={{ width: `${(jogador.mana / jogador.maxMana) * 100}%` }}></div>
+                                                            <div className={`h-full ${CLASSES[jogador.classe]?.recurso?.cor || "bg-blue-600"} absolute transition-all duration-500`} style={{ width: `${(jogador.mana / jogador.maxMana) * 100}%` }}></div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Atributos Manuais */}
-                                                    <div className="mb-2 text-[8px] grid grid-cols-2 gap-x-2 gap-y-0.5 mt-2 bg-black/20 p-1 rounded">
+                                                    {/* Atributos Manuais (Escondidos no mobile pois já tem na sidebar) */}
+                                                    <div className="hidden md:grid mb-2 text-[8px] grid-cols-2 gap-x-2 gap-y-0.5 mt-2 bg-black/20 p-1 rounded">
                                                         {/* Força */}
                                                         <div className="flex justify-between items-center text-zinc-400">
                                                             <span>FOR: {atributos.forca}</span>
                                                             {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('forca')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
                                                         </div>
-                                                        {/* Poder de Fogo */}
+                                                        {/* Armadura */}
                                                         <div className="flex justify-between items-center text-zinc-400">
-                                                            <span className={jogador.classe === 'Mago' ? 'text-blue-300 font-bold' : ''}>MAG: {atributos.poderDeFogo}</span>
-                                                            {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('poderDeFogo')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
+                                                            <span>ARM: {atributos.armadura}</span>
+                                                            {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('armadura')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
                                                         </div>
                                                         {/* Habilidade */}
                                                         <div className="flex justify-between items-center text-zinc-400">
                                                             <span>HAB: {atributos.habilidade}</span>
                                                             {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('habilidade')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
                                                         </div>
-                                                        {/* Resistência */}
+                                                        {/* Poder de Fogo */}
                                                         <div className="flex justify-between items-center text-zinc-400">
+                                                            <span className={jogador.classe === 'Mago' ? 'text-blue-300 font-bold' : ''}>PDF: {atributos.poderDeFogo}</span>
+                                                            {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('poderDeFogo')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
+                                                        </div>
+                                                        {/* Resistência */}
+                                                        <div className="flex justify-between items-center text-zinc-400 col-span-2">
                                                             <span>RES: {atributos.resistencia}</span>
                                                             {jogador.pontosAtributo > 0 && <button onClick={() => evoluirAtributo('resistencia')} className="text-amber-400 hover:text-white font-bold bg-zinc-800 px-1.5 rounded transition-colors border border-amber-900/50">+</button>}
                                                         </div>
@@ -1428,22 +1639,22 @@
                                                     <div className="h-px bg-zinc-700 my-1.5"></div>
 
                                                     {/* Botoes de Ação */}
-                                                    <div className="grid grid-cols-2 gap-1">
-                                                        <button onClick={atacar} className="col-span-1 bg-red-600 hover:bg-red-500 text-white py-1.5 rounded font-bold text-xs shadow hover:shadow-red-500/20 transition-all active:scale-95 flex items-center justify-center gap-1 border-b border-red-800">
+                                                    <div className="grid grid-cols-2 gap-2 md:gap-1 mt-2">
+                                                        <button onClick={atacar} className="col-span-1 bg-red-600 hover:bg-red-500 text-white py-3 md:py-1.5 rounded-lg md:rounded font-bold text-sm md:text-xs shadow hover:shadow-red-500/20 transition-all active:scale-95 flex items-center justify-center gap-1 border-b-2 border-red-800">
                                                             <span>⚔️</span> ATACAR
                                                         </button>
-                                                        <button onClick={fugir} className="col-span-1 bg-zinc-600 hover:bg-zinc-500 text-white py-1.5 rounded font-bold text-xs shadow hover:shadow-zinc-500/20 transition-all active:scale-95 flex items-center justify-center gap-1 border-b border-zinc-800">
+                                                        <button onClick={fugir} className="col-span-1 bg-zinc-600 hover:bg-zinc-500 text-white py-3 md:py-1.5 rounded-lg md:rounded font-bold text-sm md:text-xs shadow hover:shadow-zinc-500/20 transition-all active:scale-95 flex items-center justify-center gap-1 border-b-2 border-zinc-800">
                                                             <span>🏃</span> FUGIR
                                                         </button>
                                                         {jogador.magias.map(magia => (
                                                             <button
                                                                 key={magia.id}
-                                                                onClick={() => conjurar(magia)}
-                                                                className="col-span-1 bg-cyan-700 hover:bg-cyan-600 text-white py-1.5 rounded font-bold text-[10px] flex flex-col items-center justify-center border-b border-cyan-800 transition-all active:scale-95 hover:shadow-cyan-500/20"
-                                                                title={`${magia.desc} (Dano: ${Math.floor(magia.poder * (atributos.poderDeFogo / 2 + 1))})`}
+                                                                onClick={() => usarHabilidade(magia)}
+                                                                className="col-span-1 bg-cyan-700 hover:bg-cyan-600 text-white py-3 md:py-1.5 rounded-lg md:rounded font-bold text-xs md:text-[10px] flex flex-col items-center justify-center border-b-2 border-cyan-800 transition-all active:scale-95 hover:shadow-cyan-500/20"
+                                                                title={`${magia.desc} (Dano/Poder: ${magia.poder})`}
                                                             >
-                                                                <span>{magia.tipo === 'Cura' ? '💖' : '🔥'} {magia.nome}</span>
-                                                                <span className="text-[8px] opacity-80">{magia.mana} PM</span>
+                                                                <span>{magia.tipo === 'Cura' ? '💖' : '⚡'} {magia.nome}</span>
+                                                                <span className="text-[10px] md:text-[8px] opacity-80">{magia.mana} MP</span>
                                                             </button>
                                                         ))}
                                                     </div>
@@ -1453,11 +1664,11 @@
 
                                     </div>
                                 ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center relative">
-                                        {/* Background Decorativo */}
-                                        <div className="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center text-9xl filter blur-sm">
+                                    <div className="flex-1 flex flex-col items-center justify-center relative pb-32">
+                                        {/* Background Decorativo - Removido ícones pois agora temos BG real */}
+                                        {/* <div className="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center text-9xl filter blur-sm">
                                             {ehCidade ? '🏰' : '🌲'}
-                                        </div>
+                                        </div> */}
 
                                         <div className="text-center space-y-4 relative z-10">
                                             {!ehCidade ? (
@@ -1491,369 +1702,6 @@
                                 ))}
                             </div>
 
-                            {/* MODAIS */}
-                            {modal && (
-                                <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 z-50">
-                                    <div className={`bg-zinc-900 border border-amber-500/30 rounded-2xl w-full ${modal === 'mapa' ? 'max-w-6xl' : 'max-w-2xl'} max-h-[90dvh] flex flex-col relative shadow-2xl`}>
-                                        <button onClick={() => setModal(null)} className="absolute top-3 right-3 text-zinc-400 hover:text-white z-50 bg-black/50 hover:bg-black/80 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
-
-                                        {/* Container de Conteúdo com Scroll */}
-                                        <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar relative">
-
-                                            {modal === 'campeonato' && (
-                                                <div className="text-center">
-                                                    <div className="text-6xl mb-4">🏆</div>
-                                                    <h2 className="text-3xl font-fantasy text-amber-500 mb-2">Grande Campeonato de {localAtual.nome}</h2>
-                                                    <p className="text-zinc-400 mb-6 max-w-lg mx-auto">
-                                                        Guerreiros de todo o reino se reúnem para provar seu valor.
-                                                        Sobreviva a <strong>5 rodadas consecutivas</strong> contra gladiadores de elite para ganhar fama e fortuna!
-                                                    </p>
-
-                                                    <div className="bg-black/30 p-4 rounded-xl border border-amber-900/30 mb-8 max-w-md mx-auto">
-                                                        <h3 className="text-amber-200 font-bold mb-2">Prêmio do Campeão</h3>
-                                                        <div className="flex justify-center gap-8 text-sm">
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="text-2xl">💰</span>
-                                                                <span className="text-yellow-400 font-bold">{500 * jogador.nivel} Ouro</span>
-                                                            </div>
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="text-2xl">✨</span>
-                                                                <span className="text-purple-400 font-bold">{200 * jogador.nivel} XP</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <button onClick={iniciarCampeonato} className="px-8 py-3 bg-gradient-to-r from-amber-700 to-amber-500 hover:from-amber-600 hover:to-amber-400 text-black font-bold rounded-xl text-lg shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-transform hover:scale-105 border-2 border-amber-300">
-                                                        ENTRAR NA ARENA
-                                                    </button>
-                                                    <div className="mt-4">
-                                                        <button onClick={() => setModal(null)} className="text-zinc-500 hover:text-white underline text-sm">Talvez mais tarde...</button>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {modal === 'loja' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6 flex items-center gap-2">🛒 Mercado Local <span className="text-sm text-zinc-400 font-sans ml-auto">Seu Ouro: {jogador.ouro}</span></h2>
-                                                    <div className="grid gap-3">
-                                                        {ITENS_LOJA.map(item => (
-                                                            <div key={item.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5 hover:border-amber-500/50">
-                                                                <div>
-                                                                    <div className="font-bold text-amber-100">{item.nome}</div>
-                                                                    <div className="text-xs text-zinc-500">{item.desc}</div>
-                                                                </div>
-                                                                <button onClick={() => comprarItem(item)} className="bg-green-700 hover:bg-green-600 px-4 py-2 rounded font-bold text-sm">Comprar {item.preco}💰</button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {modal === 'guilda' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6">📜 Guilda de Aventureiros (Rank {jogador.rankGuilda})</h2>
-                                                    {jogador.missaoAtiva ? (
-                                                        <div className="text-center p-8 bg-blue-900/20 rounded-xl border border-blue-500/30">
-                                                            <h3 className="text-xl mb-2">Missão em Progresso</h3>
-                                                            <p className="text-blue-300 font-bold text-lg">{jogador.missaoAtiva.titulo}</p>
-                                                            <p className="text-zinc-400 mb-4">{jogador.missaoAtiva.desc}</p>
-                                                            <p>Progresso: {jogador.missaoAtiva.atual}/{jogador.missaoAtiva.req}</p>
-
-                                                            {jogador.missaoAtiva.atual >= jogador.missaoAtiva.req ? (
-                                                                <button
-                                                                    onClick={() => {
-                                                                        if (jogador.missaoAtiva.tipo === 'evolucao') {
-                                                                            const novaClasse = EVOLUCOES[jogador.classe];
-                                                                            setJogador(p => ({
-                                                                                ...p,
-                                                                                classe: novaClasse,
-                                                                                classeEvoluida: true,
-                                                                                missaoAtiva: null,
-                                                                                ouro: p.ouro + 1000,
-                                                                                maxHp: p.maxHp + 50, // Bonus evolução
-                                                                                hp: p.maxHp + 50,
-                                                                                maxMana: p.maxMana + 20,
-                                                                                mana: p.maxMana + 20
-                                                                            }));
-                                                                            addLog(`VOCÊ EVOLUIU PARA ${novaClasse.toUpperCase()}!`, 'sucesso');
-                                                                            alert(`Parabéns! Você alcançou o nível supremo e se tornou um ${novaClasse}!`);
-                                                                        } else {
-                                                                            // Missão Normal
-                                                                            // Check Rank Up
-                                                                            const rankAtualIdx = RANKS_GUILDA.indexOf(jogador.rankGuilda);
-                                                                            const missoesNecessarias = REQUISITOS_RANK[rankAtualIdx] || 9999;
-                                                                            let novoRank = jogador.rankGuilda;
-                                                                            let msgRank = "";
-
-                                                                            if (jogador.missoesCompletas + 1 >= missoesNecessarias) {
-                                                                                if (rankAtualIdx < RANKS_GUILDA.length - 1) {
-                                                                                    novoRank = RANKS_GUILDA[rankAtualIdx + 1];
-                                                                                    msgRank = ` SUBIU DE RANK: ${novoRank}!`;
-                                                                                    // Resetar missões disponíveis para gerar novas do rank novo
-                                                                                    setMissoesDisponiveis([]);
-                                                                                }
-                                                                            }
-
-                                                                            setJogador(p => ({
-                                                                                ...p,
-                                                                                ouro: p.ouro + p.missaoAtiva.ouro,
-                                                                                xp: p.xp + p.missaoAtiva.xp,
-                                                                                missoesCompletas: p.missoesCompletas + 1,
-                                                                                rankGuilda: novoRank,
-                                                                                missaoAtiva: null
-                                                                            }));
-                                                                            addLog(`Missão entregue! Recebeu ${jogador.missaoAtiva.ouro} ouro e ${jogador.missaoAtiva.xp} XP.${msgRank}`, 'sucesso');
-                                                                        }
-                                                                    }}
-                                                                    className="mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg animate-pulse w-full"
-                                                                >
-                                                                    COMPLETAR MISSÃO
-                                                                </button>
-                                                            ) : (
-                                                                <button
-                                                                    onClick={cancelarMissao}
-                                                                    className="mt-4 bg-red-900/50 hover:bg-red-700 text-red-200 border border-red-800 font-bold py-2 px-6 rounded-lg w-full text-xs"
-                                                                >
-                                                                    CANCELAR MISSÃO
-                                                                </button>
-                                                            )}
-
-                                                        </div>
-                                                    ) : (
-                                                        <div className="grid gap-4">
-                                                            {/* Progress Bar do Rank */}
-                                                            {RANKS_GUILDA.indexOf(jogador.rankGuilda) < RANKS_GUILDA.length - 1 && (
-                                                                <div className="bg-black/30 p-3 rounded-lg border border-amber-900/30">
-                                                                    <div className="flex justify-between text-xs text-zinc-400 mb-1">
-                                                                        <span>Progresso para Rank {RANKS_GUILDA[RANKS_GUILDA.indexOf(jogador.rankGuilda) + 1]}</span>
-                                                                        <span>{jogador.missoesCompletas} / {REQUISITOS_RANK[RANKS_GUILDA.indexOf(jogador.rankGuilda)]}</span>
-                                                                    </div>
-                                                                    <div className="h-2 bg-black rounded-full overflow-hidden">
-                                                                        <div className="h-full bg-amber-600" style={{ width: `${Math.min(100, (jogador.missoesCompletas / REQUISITOS_RANK[RANKS_GUILDA.indexOf(jogador.rankGuilda)]) * 100)}%` }}></div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Lista de Missões */}
-                                                            {missoesDiponiveis.map(m => (
-                                                                <div key={m.id} className="p-4 bg-white/5 rounded-xl border-l-4 border-amber-500">
-                                                                    <h4 className="font-bold text-lg">{m.titulo} <span className="text-xs bg-amber-900 px-2 py-0.5 rounded ml-2">Rank {m.rank}</span></h4>
-                                                                    <p className="text-zinc-400 text-sm mb-3">{m.desc}</p>
-                                                                    <div className="flex justify-between items-center">
-                                                                        <div className="text-xs text-amber-300">Recompensa: {m.ouro} ouro, {m.xp} XP</div>
-                                                                        <button onClick={() => aceitarMissao(m)} className="bg-amber-600 hover:bg-amber-500 text-black font-bold px-4 py-2 rounded text-sm">Aceitar Contrato</button>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {modal === 'academia' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6">🎓 Academia Arcana</h2>
-                                                    <div className="grid gap-3">
-                                                        {MAGIAS_DISPONIVEIS.map(magia => (
-                                                            <div key={magia.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5">
-                                                                <div>
-                                                                    <div className="font-bold text-blue-200">{magia.nome}</div>
-                                                                    <div className="text-xs text-zinc-500">{magia.desc} ({magia.tipo})</div>
-                                                                </div>
-                                                                <button onClick={() => aprenderMagia(magia)} className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded font-bold text-sm">Aprender {magia.custo}💰</button>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-
-
-                                            {modal === 'taverna' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6">🍺 Taverna do Javali</h2>
-                                                    <div className="bg-amber-900/20 p-6 rounded-xl border border-amber-500/30 text-center mb-6">
-                                                        <p className="text-xl mb-4 italic">"Bem-vindo, viajante! Sente-se, a lareira está quente."</p>
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <button onClick={() => acaoTaverna('bebida')} className="p-4 bg-amber-800 hover:bg-amber-700 rounded-xl border border-amber-600 transition-all hover:scale-105">
-                                                                <div className="text-4xl mb-2">🍺</div>
-                                                                <div className="font-bold">Beber Uma</div>
-                                                                <div className="text-sm text-yellow-300">Custo: {Math.ceil(jogador.nivel * 2)}💰</div>
-                                                                <div className="text-xs text-zinc-400 mt-1">Recupera um pouco de mana</div>
-                                                            </button>
-                                                            <button onClick={() => acaoTaverna('descanso')} className="p-4 bg-blue-900 hover:bg-blue-800 rounded-xl border border-blue-600 transition-all hover:scale-105">
-                                                                <div className="text-4xl mb-2">🛏️</div>
-                                                                <div className="font-bold">Pernoitar</div>
-                                                                <div className="text-sm text-yellow-300">Custo: {Math.ceil(jogador.nivel * 15)}💰</div>
-                                                                <div className="text-xs text-zinc-400 mt-1">Recupera TODA Vida e Mana</div>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {modal === 'mapa' && (
-                                                <div className="h-full flex flex-col justify-center overflow-y-auto">
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-4 flex-shrink-0 text-center">🗺️ Mapa do Reino</h2>
-
-                                                    {/* Map Container - Responsive */}
-                                                    <div className="relative w-full max-w-4xl rounded-xl overflow-hidden border-2 border-amber-900/50 bg-stone-900 group shadow-2xl mx-auto flex-shrink-0">
-
-                                                        {/* Map Image - Tag img for correct aspect ratio */}
-                                                        <img
-                                                            src="./mapa.png?v=5"
-                                                            alt="Mapa do Mundo"
-                                                            className="w-full h-auto block opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
-                                                        />
-
-                                                        {/* Locations Pins - Absolute positioned over image */}
-                                                        <div className="absolute inset-0">
-                                                            {LOCAIS_FIXOS.map(local => {
-                                                                const isCurrent = local.nome === jogador.local;
-                                                                return (
-                                                                    <button
-                                                                        key={local.nome}
-                                                                        onClick={() => viajar(local)}
-                                                                        disabled={isCurrent}
-                                                                        style={{ left: `${local.x}%`, top: `${local.y}%` }}
-                                                                        className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 z-10 w-8 h-8 flex items-center justify-center rounded-full border-2 shadow-[0_0_15px_rgba(0,0,0,0.8)] group/pin
-                                                                        ${isCurrent
-                                                                                ? 'bg-amber-600 border-amber-300 scale-110 cursor-default animate-pulse'
-                                                                                : 'bg-zinc-800 border-zinc-600 hover:bg-amber-700 hover:border-amber-400 hover:scale-125'}`}
-                                                                    >
-                                                                        <span className="text-sm">
-                                                                            {local.tipo === 'Cidade' ? '🏰' :
-                                                                                local.tipo === 'Vila' ? '🏠' :
-                                                                                    local.nome === 'Floresta Sombria' ? '☠️' :
-                                                                                        local.tipo === 'Floresta' ? '🌲' :
-                                                                                            local.tipo === 'Montanha' ? '🏔️' : '📍'}
-                                                                        </span>
-
-                                                                        {/* Tooltip */}
-                                                                        <div className="absolute bottom-full mb-2 bg-black/90 text-amber-100 text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/pin:opacity-100 pointer-events-none border border-amber-500/30 transition-opacity z-20">
-                                                                            <div className="font-bold">{local.nome}</div>
-                                                                            <div className="text-zinc-400 text-[10px]">{local.tipo}</div>
-                                                                            <div className="text-yellow-400 text-[10px]">Custo: {20 + (jogador.nivel * 5)} 💰</div>
-                                                                        </div>
-                                                                    </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-4 text-center text-sm text-zinc-400 flex-shrink-0">
-                                                        Clique em um local para viajar • O local atual está pulsando em laranja
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {modal === 'inventario' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6">🎒 Inventário & Equipamentos</h2>
-
-                                                    {/* Equipados */}
-                                                    <div className="mb-6 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700">
-                                                        <h3 className="text-zinc-400 text-sm uppercase font-bold mb-3">Equipado</h3>
-                                                        <div className="grid grid-cols-3 gap-2">
-                                                            {['arma', 'armadura', 'acessorio'].map(slot => (
-                                                                <div key={slot} className="relative group">
-                                                                    <div className={`p-3 rounded-lg border flex flex-col items-center justify-center h-24 text-center ${jogador.equipamento[slot] ? 'bg-amber-900/20 border-amber-500/50' : 'bg-black/20 border-white/5'}`}>
-                                                                        {jogador.equipamento[slot] ? (
-                                                                            <>
-                                                                                <div className="font-bold text-amber-100 text-xs sm:text-sm">{jogador.equipamento[slot].nome}</div>
-                                                                                <button onClick={() => desequipar(slot)} className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs shadow-lg hover:scale-110 opacity-0 group-hover:opacity-100 transition-all">✕</button>
-                                                                            </>
-                                                                        ) : (
-                                                                            <div className="text-zinc-600 text-xs uppercase">{slot}</div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Mochila */}
-                                                    <div>
-                                                        <h3 className="text-zinc-400 text-sm uppercase font-bold mb-3">Na Mochila ({jogador.inventario.length} itens)</h3>
-                                                        {jogador.inventario.length === 0 ? (
-                                                            <div className="text-zinc-500 italic text-center py-8">Sua mochila está vazia.</div>
-                                                        ) : (
-                                                            <div className="grid sm:grid-cols-2 gap-2">
-                                                                {jogador.inventario.map(item => (
-                                                                    <div key={item.uid} className="flex justify-between items-center p-2 bg-white/5 rounded border border-white/5 hover:border-amber-500/30 group">
-                                                                        <div>
-                                                                            <div className="font-bold text-zinc-200">{item.nome}</div>
-                                                                            <div className="text-[10px] text-zinc-500">{item.tipo}</div>
-                                                                        </div>
-                                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                            {item.tipo === 'Consumivel' ? (
-                                                                                <button onClick={() => usarItem(item)} className="px-3 py-1 bg-green-700 hover:bg-green-600 rounded text-xs font-bold">Usar</button>
-                                                                            ) : (
-                                                                                <button onClick={() => equiparItem(item)} className="px-3 py-1 bg-blue-700 hover:bg-blue-600 rounded text-xs font-bold">Equipar</button>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {modal === 'sistema' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-zinc-400 mb-6 flex items-center gap-2">⚙️ Sistema</h2>
-                                                    <div className="grid gap-4">
-                                                        <button onClick={salvarJogo} className="p-4 bg-green-900/40 hover:bg-green-800/60 border border-green-700/50 rounded-xl flex items-center gap-4 transition-all">
-                                                            <span className="text-3xl">💾</span>
-                                                            <div className="text-left">
-                                                                <div className="font-bold text-green-200">Salvar Jogo</div>
-                                                                <div className="text-xs text-zinc-400">Guarda seu progresso atual no navegador.</div>
-                                                            </div>
-                                                        </button>
-
-                                                        <button onClick={carregarJogo} className="p-4 bg-blue-900/40 hover:bg-blue-800/60 border border-blue-700/50 rounded-xl flex items-center gap-4 transition-all">
-                                                            <span className="text-3xl">📂</span>
-                                                            <div className="text-left">
-                                                                <div className="font-bold text-blue-200">Carregar Jogo</div>
-                                                                <div className="text-xs text-zinc-400">Recupera o último save.</div>
-                                                            </div>
-                                                        </button>
-
-                                                        <button onClick={reiniciarJogo} className="p-4 bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 rounded-xl flex items-center gap-4 transition-all mt-8">
-                                                            <span className="text-3xl">🚪</span>
-                                                            <div className="text-left">
-                                                                <div className="font-bold text-red-200">Sair do Jogo</div>
-                                                                <div className="text-xs text-zinc-400">Volta para o menu principal.</div>
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {modal === 'carregar_menu' && (
-                                                <div>
-                                                    <h2 className="text-2xl font-fantasy text-amber-500 mb-6">📂 Carregar Jogo</h2>
-                                                    {getSaves().length === 0 ? (
-                                                        <p className="text-zinc-500 italic">Nenhum save encontrado.</p>
-                                                    ) : (
-                                                        <div className="grid gap-2 max-h-[60vh] overflow-y-auto pr-2">
-                                                            {getSaves().map(save => (
-                                                                <button key={save.id} onClick={() => carregarSaveEspecifico(save)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 text-left group transition-all">
-                                                                    <div className="font-bold text-amber-100 group-hover:text-amber-400">{save.nome}</div>
-                                                                    <div className="text-xs text-zinc-500 flex justify-between mt-1">
-                                                                        <span>{save.data}</span>
-                                                                        <span>ID: {save.id.toString().slice(-4)}</span>
-                                                                    </div>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
                             {/* MODAL DE MORTE (Overlay Global) */}
                             {jogador.hp <= 0 && (
                                 <div className="absolute inset-0 bg-red-900/90 backdrop-blur-lg flex items-center justify-center p-8 z-[100] animate-pulse-slow">
@@ -1880,6 +1728,414 @@
                         </div>
                     </div>
 
+                    {/* Modal Overlay Genérico (Mobile Fullscreen) */}
+                    {modal && modal !== 'levelup' && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 md:p-4 animate-fade-in text-white">
+                            <div className="bg-zinc-900/95 backdrop-blur-md md:rounded-xl border-0 md:border border-amber-500/30 w-full h-full md:h-auto md:max-w-2xl max-h-full md:max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+                                {/* Modal Header */}
+                                <div className="flex justify-between items-center p-4 border-b border-white/10 bg-black/40">
+                                    <h3 className="text-xl font-fantasy text-amber-500 capitalize">{modal}</h3>
+                                    <button onClick={() => setModal(null)} className="text-zinc-400 hover:text-white p-2">✕</button>
+                                </div>
+
+                                {/* Modal Content */}
+                                <div className="p-4 md:p-6 overflow-y-auto flex-1">
+                                    {modal === 'campeonato' && (
+                                        <div className="text-center">
+                                            <div className="text-6xl mb-4">🏆</div>
+                                            <h2 className="text-3xl font-fantasy text-amber-500 mb-2">Grande Campeonato de {localAtual.nome}</h2>
+                                            <p className="text-zinc-400 mb-6 max-w-lg mx-auto">
+                                                Guerreiros de todo o reino se reúnem para provar seu valor.
+                                                Sobreviva a <strong>5 rodadas consecutivas</strong> contra gladiadores de elite para ganhar fama e fortuna!
+                                            </p>
+
+                                            <div className="bg-black/30 p-4 rounded-xl border border-amber-900/30 mb-8 max-w-md mx-auto">
+                                                <h3 className="text-amber-200 font-bold mb-2">Prêmio do Campeão</h3>
+                                                <div className="flex justify-center gap-8 text-sm">
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-2xl">💰</span>
+                                                        <span className="text-yellow-400 font-bold">{500 * jogador.nivel} Ouro</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-2xl">✨</span>
+                                                        <span className="text-purple-400 font-bold">{200 * jogador.nivel} XP</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button onClick={iniciarCampeonato} className="px-8 py-3 bg-gradient-to-r from-amber-700 to-amber-500 hover:from-amber-600 hover:to-amber-400 text-black font-bold rounded-xl text-lg shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-transform hover:scale-105 border-2 border-amber-300">
+                                                ENTRAR NA ARENA
+                                            </button>
+                                            <div className="mt-4">
+                                                <button onClick={() => setModal(null)} className="text-zinc-500 hover:text-white underline text-sm">Talvez mais tarde...</button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {modal === 'loja' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6 flex items-center gap-2">🛒 Mercado Local <span className="text-sm text-zinc-400 font-sans ml-auto">Seu Ouro: {jogador.ouro}</span></h2>
+                                            <div className="grid gap-3">
+                                                {ITENS_LOJA.filter(i => !i.classe || i.classe === jogador.classe || i.tipo === 'Consumivel').map(item => (
+                                                    <div key={item.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5 hover:border-amber-500/50">
+                                                        <div>
+                                                            <div className="font-bold text-amber-100">{item.nome}</div>
+                                                            <div className="text-xs text-zinc-500">{item.desc}</div>
+                                                        </div>
+                                                        <button onClick={() => comprarItem(item)} className="bg-green-700 hover:bg-green-600 px-4 py-2 rounded font-bold text-sm">Comprar {item.preco}💰</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {modal === 'guilda' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6">📜 Guilda de Aventureiros (Rank {jogador.rankGuilda})</h2>
+                                            {jogador.missaoAtiva ? (
+                                                <div className="text-center p-8 bg-blue-900/20 rounded-xl border border-blue-500/30">
+                                                    <h3 className="text-xl mb-2">Missão em Progresso</h3>
+                                                    <p className="text-blue-300 font-bold text-lg">{jogador.missaoAtiva.titulo}</p>
+                                                    <p className="text-zinc-400 mb-4">{jogador.missaoAtiva.desc}</p>
+                                                    <p>Progresso: {jogador.missaoAtiva.atual}/{jogador.missaoAtiva.req}</p>
+
+                                                    {jogador.missaoAtiva.atual >= jogador.missaoAtiva.req ? (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (jogador.missaoAtiva.tipo === 'evolucao') {
+                                                                    const novaClasse = EVOLUCOES[jogador.classe];
+                                                                    setJogador(p => ({
+                                                                        ...p,
+                                                                        classe: novaClasse,
+                                                                        classeEvoluida: true,
+                                                                        missaoAtiva: null,
+                                                                        ouro: p.ouro + 1000,
+                                                                        maxHp: p.maxHp + 50, // Bonus evolução
+                                                                        hp: p.maxHp + 50,
+                                                                        maxMana: p.maxMana + 20,
+                                                                        mana: p.maxMana + 20
+                                                                    }));
+                                                                    addLog(`VOCÊ EVOLUIU PARA ${novaClasse.toUpperCase()}!`, 'sucesso');
+                                                                    alert(`Parabéns! Você alcançou o nível supremo e se tornou um ${novaClasse}!`);
+                                                                } else {
+                                                                    // Missão Normal
+                                                                    // Check Rank Up
+                                                                    const rankAtualIdx = RANKS_GUILDA.indexOf(jogador.rankGuilda);
+                                                                    const missoesNecessarias = REQUISITOS_RANK[rankAtualIdx] || 9999;
+                                                                    let novoRank = jogador.rankGuilda;
+                                                                    let msgRank = "";
+
+                                                                    if (jogador.missoesCompletas + 1 >= missoesNecessarias) {
+                                                                        if (rankAtualIdx < RANKS_GUILDA.length - 1) {
+                                                                            novoRank = RANKS_GUILDA[rankAtualIdx + 1];
+                                                                            msgRank = ` SUBIU DE RANK: ${novoRank}!`;
+                                                                            // Resetar missões disponíveis para gerar novas do rank novo
+                                                                            setMissoesDisponiveis([]);
+                                                                        }
+                                                                    }
+
+                                                                    setJogador(p => ({
+                                                                        ...p,
+                                                                        ouro: p.ouro + p.missaoAtiva.ouro,
+                                                                        xp: p.xp + p.missaoAtiva.xp,
+                                                                        missoesCompletas: p.missoesCompletas + 1,
+                                                                        rankGuilda: novoRank,
+                                                                        missaoAtiva: null
+                                                                    }));
+                                                                    addLog(`Missão entregue! Recebeu ${jogador.missaoAtiva.ouro} ouro e ${jogador.missaoAtiva.xp} XP.${msgRank}`, 'sucesso');
+                                                                }
+                                                            }}
+                                                            className="mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg animate-pulse w-full"
+                                                        >
+                                                            COMPLETAR MISSÃO
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={cancelarMissao}
+                                                            className="mt-4 bg-red-900/50 hover:bg-red-700 text-red-200 border border-red-800 font-bold py-2 px-6 rounded-lg w-full text-xs"
+                                                        >
+                                                            CANCELAR MISSÃO
+                                                        </button>
+                                                    )}
+
+                                                </div>
+                                            ) : (
+                                                <div className="grid gap-4">
+                                                    {/* Progress Bar do Rank */}
+                                                    {RANKS_GUILDA.indexOf(jogador.rankGuilda) < RANKS_GUILDA.length - 1 && (
+                                                        <div className="bg-black/30 p-3 rounded-lg border border-amber-900/30">
+                                                            <div className="flex justify-between text-xs text-zinc-400 mb-1">
+                                                                <span>Progresso para Rank {RANKS_GUILDA[RANKS_GUILDA.indexOf(jogador.rankGuilda) + 1]}</span>
+                                                                <span>{jogador.missoesCompletas} / {REQUISITOS_RANK[RANKS_GUILDA.indexOf(jogador.rankGuilda)]}</span>
+                                                            </div>
+                                                            <div className="h-2 bg-black rounded-full overflow-hidden">
+                                                                <div className="h-full bg-amber-600" style={{ width: `${Math.min(100, (jogador.missoesCompletas / REQUISITOS_RANK[RANKS_GUILDA.indexOf(jogador.rankGuilda)]) * 100)}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Lista de Missões */}
+                                                    {missoesDisponiveis.map(m => (
+                                                        <div key={m.id} className="p-4 bg-white/5 rounded-xl border-l-4 border-amber-500">
+                                                            <h4 className="font-bold text-lg">{m.titulo} <span className="text-xs bg-amber-900 px-2 py-0.5 rounded ml-2">Rank {m.rank}</span></h4>
+                                                            <p className="text-zinc-400 text-sm mb-3">{m.desc}</p>
+                                                            <div className="flex justify-between items-center">
+                                                                <div className="text-xs text-amber-300">Recompensa: {m.ouro} ouro, {m.xp} XP</div>
+                                                                <button onClick={() => aceitarMissao(m)} className="bg-amber-600 hover:bg-amber-500 text-black font-bold px-4 py-2 rounded text-sm">Aceitar Contrato</button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {modal === 'academia' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6">📜 Mestre de Habilidades</h2>
+                                            <p className="text-zinc-400 mb-4 text-sm">Treine técnicas exclusivas para {jogador.classe}.</p>
+                                            <div className="grid gap-3">
+                                                {HABILIDADES_LOJA.filter(h => h.classe === jogador.classe).length === 0 ? (
+                                                    <p className="text-zinc-500 italic">Nenhuma habilidade disponível para sua classe no momento.</p>
+                                                ) : (
+                                                    HABILIDADES_LOJA.filter(h => h.classe === jogador.classe || h.classe === 'Todas').map(habilidade => (
+                                                        <div key={habilidade.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5 hover:border-amber-500/30 transition-colors">
+                                                            <div>
+                                                                <div className="font-bold text-blue-200">{habilidade.nome}</div>
+                                                                <div className="text-xs text-zinc-500">{habilidade.desc}</div>
+                                                                <div className="text-[10px] text-amber-400 font-mono mt-1">
+                                                                    Dano: {habilidade.poder} | Custo: {habilidade.mana} MP | Tipo: {habilidade.tipo}
+                                                                </div>
+                                                            </div>
+                                                            {jogador.magias.some(m => m.id === habilidade.id) ? (
+                                                                <span className="text-green-500 text-xs font-bold px-3 py-2">APRENDIDO</span>
+                                                            ) : (
+                                                                <button onClick={() => aprenderHabilidade(habilidade)} className="bg-blue-700 hover:bg-blue-600 px-4 py-2 rounded font-bold text-sm transition-colors">
+                                                                    Aprender {habilidade.custo}💰
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+
+
+                                    {modal === 'taverna' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6">🍺 Taverna do Javali</h2>
+                                            <div className="bg-amber-900/20 p-6 rounded-xl border border-amber-500/30 text-center mb-6">
+                                                <p className="text-xl mb-4 italic">"Bem-vindo, viajante! Sente-se, a lareira está quente."</p>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <button onClick={() => acaoTaverna('bebida')} className="p-4 bg-amber-800 hover:bg-amber-700 rounded-xl border border-amber-600 transition-all hover:scale-105">
+                                                        <div className="text-4xl mb-2">🍺</div>
+                                                        <div className="font-bold">Beber Uma</div>
+                                                        <div className="text-sm text-yellow-300">Custo: {Math.ceil(jogador.nivel * 2)}💰</div>
+                                                        <div className="text-xs text-zinc-400 mt-1">Recupera um pouco de mana</div>
+                                                    </button>
+                                                    <button onClick={() => acaoTaverna('descanso')} className="p-4 bg-blue-900 hover:bg-blue-800 rounded-xl border border-blue-600 transition-all hover:scale-105">
+                                                        <div className="text-4xl mb-2">🛏️</div>
+                                                        <div className="font-bold">Pernoitar</div>
+                                                        <div className="text-sm text-yellow-300">Custo: {Math.ceil(jogador.nivel * 15)}💰</div>
+                                                        <div className="text-xs text-zinc-400 mt-1">Recupera TODA Vida e Mana</div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {modal === 'mapa' && (
+                                        <div className="h-full flex flex-col justify-center overflow-y-auto">
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-4 flex-shrink-0 text-center">🗺️ Mapa do Reino</h2>
+
+                                            {/* Map Container - Responsive */}
+                                            <div className="relative w-full max-w-4xl rounded-xl overflow-hidden border-2 border-amber-900/50 bg-stone-900 group shadow-2xl mx-auto flex-shrink-0">
+
+                                                {/* Map Image - Tag img for correct aspect ratio */}
+                                                <img
+                                                    src="./assets/mapa.png?v=5"
+                                                    alt="Mapa do Mundo"
+                                                    className="w-full h-auto block opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
+                                                />
+
+                                                {/* Locations Pins - Absolute positioned over image */}
+                                                <div className="absolute inset-0">
+                                                    {LOCAIS_FIXOS.map(local => {
+                                                        const isCurrent = local.nome === jogador.local;
+                                                        return (
+                                                            <button
+                                                                key={local.nome}
+                                                                onClick={() => viajar(local)}
+                                                                disabled={isCurrent}
+                                                                style={{ left: `${local.x}%`, top: `${local.y}%` }}
+                                                                className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 z-10 w-8 h-8 flex items-center justify-center rounded-full border-2 shadow-[0_0_15px_rgba(0,0,0,0.8)] group/pin
+                                                                        ${isCurrent
+                                                                        ? 'bg-amber-600 border-amber-300 scale-110 cursor-default animate-pulse'
+                                                                        : 'bg-zinc-800 border-zinc-600 hover:bg-amber-700 hover:border-amber-400 hover:scale-125'}`}
+                                                            >
+                                                                <span className="text-sm">
+                                                                    {local.tipo === 'Cidade' ? '🏰' :
+                                                                        local.tipo === 'Vila' ? '🏠' :
+                                                                            local.tipo === 'Pântano' ? '☣️' :
+                                                                                local.nome === 'Floresta Sombria' ? '☠️' :
+                                                                                    local.tipo === 'Floresta' ? '🌲' :
+                                                                                        local.tipo === 'Montanha' ? '🏔️' : '📍'}
+                                                                </span>
+
+                                                                {/* Tooltip */}
+                                                                <div className="absolute bottom-full mb-2 bg-black/90 text-amber-100 text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover/pin:opacity-100 pointer-events-none border border-amber-500/30 transition-opacity z-20">
+                                                                    <div className="font-bold">{local.nome}</div>
+                                                                    <div className="text-zinc-400 text-[10px]">{local.tipo}</div>
+                                                                    <div className="text-yellow-400 text-[10px]">Custo: {20 + (jogador.nivel * 5)} 💰</div>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 text-center text-sm text-zinc-400 flex-shrink-0">
+                                                Clique em um local para viajar • O local atual está pulsando em laranja
+                                            </div>
+                                        </div>
+                                    )}
+                                    {modal === 'inventario' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6">🎒 Inventário & Equipamentos</h2>
+
+                                            {/* Equipados */}
+                                            <div className="mb-6 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700">
+                                                <h3 className="text-zinc-400 text-sm uppercase font-bold mb-3">Equipado</h3>
+                                                <div className="grid grid-cols-3 gap-2">
+                                                    {['arma', 'armadura', 'acessorio'].map(slot => (
+                                                        <div key={slot} className="relative group">
+                                                            <div className={`p-3 rounded-lg border flex flex-col items-center justify-center h-24 text-center ${jogador.equipamento[slot] ? 'bg-amber-900/20 border-amber-500/50' : 'bg-black/20 border-white/5'}`}>
+                                                                {jogador.equipamento[slot] ? (
+                                                                    <>
+                                                                        <div className="font-bold text-amber-100 text-xs sm:text-sm">{jogador.equipamento[slot].nome}</div>
+                                                                        <button onClick={() => desequipar(slot)} className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs shadow-lg hover:scale-110 opacity-0 group-hover:opacity-100 transition-all">✕</button>
+                                                                    </>
+                                                                ) : (
+                                                                    <div className="text-zinc-600 text-xs uppercase">{slot}</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Mochila */}
+                                            <div>
+                                                <h3 className="text-zinc-400 text-sm uppercase font-bold mb-3">Na Mochila ({jogador.inventario.length} itens)</h3>
+                                                {jogador.inventario.length === 0 ? (
+                                                    <div className="text-zinc-500 italic text-center py-8">Sua mochila está vazia.</div>
+                                                ) : (
+                                                    <div className="grid sm:grid-cols-2 gap-2">
+                                                        {jogador.inventario.map(item => (
+                                                            <div key={item.uid} className="flex justify-between items-center p-2 bg-white/5 rounded border border-white/5 hover:border-amber-500/30 group">
+                                                                <div>
+                                                                    <div className="font-bold text-zinc-200">{item.nome}</div>
+                                                                    <div className="text-[10px] text-zinc-500">{item.tipo}</div>
+                                                                </div>
+                                                                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    {item.tipo === 'Consumivel' ? (
+                                                                        <button onClick={() => usarItem(item)} className="px-3 py-1 bg-green-700 hover:bg-green-600 rounded text-xs font-bold">Usar</button>
+                                                                    ) : (
+                                                                        <button onClick={() => equiparItem(item)} className="px-3 py-1 bg-blue-700 hover:bg-blue-600 rounded text-xs font-bold">Equipar</button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {modal === 'sistema' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-zinc-400 mb-6 flex items-center gap-2">⚙️ Sistema</h2>
+                                            <div className="grid gap-4">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button onClick={() => salvarJogo(false)} className="p-4 bg-green-900/40 hover:bg-green-800/60 border border-green-700/50 rounded-xl flex flex-col items-center gap-2 transition-all">
+                                                        <span className="text-2xl">💾</span>
+                                                        <div className="text-center">
+                                                            <div className="font-bold text-green-200">Salvar</div>
+                                                            <div className="text-[10px] text-zinc-400">Atualizar Atual</div>
+                                                        </div>
+                                                    </button>
+                                                    <button onClick={() => salvarJogo(true)} className="p-4 bg-green-900/20 hover:bg-green-800/40 border border-green-700/30 rounded-xl flex flex-col items-center gap-2 transition-all">
+                                                        <span className="text-2xl">➕</span>
+                                                        <div className="text-center">
+                                                            <div className="font-bold text-green-200">Salvar Como</div>
+                                                            <div className="text-[10px] text-zinc-400">Novo Arquivo</div>
+                                                        </div>
+                                                    </button>
+                                                </div>
+
+                                                <button onClick={carregarJogo} className="p-4 bg-blue-900/40 hover:bg-blue-800/60 border border-blue-700/50 rounded-xl flex items-center gap-4 transition-all">
+                                                    <span className="text-3xl">📂</span>
+                                                    <div className="text-left">
+                                                        <div className="font-bold text-blue-200">Carregar (Navegador)</div>
+                                                        <div className="text-xs text-zinc-400">Recupera o save local.</div>
+                                                    </div>
+                                                </button>
+
+                                                <div className="h-px bg-zinc-800/50"></div>
+
+                                                <button onClick={exportarArquivo} className="p-4 bg-amber-900/40 hover:bg-amber-800/60 border border-amber-700/50 rounded-xl flex items-center gap-4 transition-all">
+                                                    <span className="text-3xl">📥</span>
+                                                    <div className="text-left">
+                                                        <div className="font-bold text-amber-200">Baixar Backup (PC)</div>
+                                                        <div className="text-xs text-zinc-400">Cria arquivo para transferir de PC.</div>
+                                                    </div>
+                                                </button>
+
+                                                <button onClick={triggerImport} className="p-4 bg-purple-900/40 hover:bg-purple-800/60 border border-purple-700/50 rounded-xl flex items-center gap-4 transition-all">
+                                                    <span className="text-3xl">📤</span>
+                                                    <div className="text-left">
+                                                        <div className="font-bold text-purple-200">Carregar do PC</div>
+                                                        <div className="text-xs text-zinc-400">Restaura arquivo .rpgsave.</div>
+                                                    </div>
+                                                </button>
+
+                                                <button onClick={reiniciarJogo} className="p-4 bg-red-900/40 hover:bg-red-800/60 border border-red-700/50 rounded-xl flex items-center gap-4 transition-all mt-8">
+                                                    <span className="text-3xl">🚪</span>
+                                                    <div className="text-left">
+                                                        <div className="font-bold text-red-200">Sair do Jogo</div>
+                                                        <div className="text-xs text-zinc-400">Volta para o menu principal.</div>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {modal === 'carregar_menu' && (
+                                        <div>
+                                            <h2 className="text-2xl font-fantasy text-amber-500 mb-6">📂 Carregar Jogo</h2>
+                                            {getSaves().length === 0 ? (
+                                                <p className="text-zinc-500 italic">Nenhum save encontrado.</p>
+                                            ) : (
+                                                <div className="grid gap-2 max-h-[60vh] overflow-y-auto pr-2">
+                                                    {getSaves().map(save => (
+                                                        <button key={save.id} onClick={() => carregarSaveEspecifico(save)} className="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 text-left group transition-all">
+                                                            <div className="font-bold text-amber-100 group-hover:text-amber-400">{save.nome}</div>
+                                                            <div className="text-xs text-zinc-500 flex justify-between mt-1">
+                                                                <span>{save.data}</span>
+                                                                <span>ID: {save.id.toString().slice(-4)}</span>
+                                                            </div>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Modal Isolado para o Menu Principal */}
                     {view === 'menu' && modal === 'carregar_menu' && (
                         <div className="absolute inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-8 z-50">
@@ -1897,27 +2153,123 @@
                             </div>
                         </div>
                     )}
+                    {/* INPUT DE ARQUIVO (OCULTO) */}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={importarArquivo}
+                        accept=".rpgsave,.json,application/json"
+                    />
                 </div>
             );
         };
 
-        const CriacaoScreen = ({ onCriar }) => {
+        const CriacaoScreen = ({ onCriar, onVoltar }) => {
             const [nome, setNome] = React.useState("");
             const [raca, setRaca] = React.useState("Humano");
             const [classe, setClasse] = React.useState("Guerreiro");
 
+            const racaAtual = RACAS[raca];
+
             return (
-                <div className="min-h-screen flex items-center justify-center bg-black p-4 bg-[url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=2000')] bg-cover relative">
-                    <div className="absolute inset-0 bg-black/80"></div>
-                    <div className="relative glass-card p-8 rounded-2xl w-full max-w-md animate-slide border border-amber-500/30">
-                        <h1 className="text-3xl font-fantasy text-amber-500 text-center mb-6">Crônicas do Infinito</h1>
-                        <div className="space-y-4">
-                            <div><label className="block text-xs uppercase font-bold text-zinc-500 mb-1">Nome</label><input className="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-lg text-white" value={nome} onChange={e => setNome(e.target.value)} /></div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs uppercase font-bold text-zinc-500 mb-1">Raça</label><select className="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-lg text-white" value={raca} onChange={e => setRaca(e.target.value)}>{Object.keys(RACAS).map(r => <option key={r} value={r}>{r}</option>)}</select></div>
-                                <div><label className="block text-xs uppercase font-bold text-zinc-500 mb-1">Classe</label><select className="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-lg text-white" value={classe} onChange={e => setClasse(e.target.value)}>{Object.keys(EVOLUCOES).map(c => <option key={c} value={c}>{c}</option>)}</select></div>
+                <div className="min-h-screen flex items-center justify-center bg-black p-4 relative overflow-hidden">
+                    {/* Background Animado (Zoom Lento) */}
+                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=2000')] bg-cover bg-center animate-pulse-slow scale-110 transition-transform duration-[20s] ease-linear"></div>
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+                    <div className="relative glass-card p-6 md:p-8 rounded-2xl w-full max-w-4xl animate-slide border border-amber-500/30 shadow-2xl flex flex-col md:flex-row gap-6">
+
+                        {/* Left Side: Form */}
+                        <div className="flex-1 flex flex-col gap-4">
+                            <div className="text-center md:text-left">
+                                <h1 className="text-4xl font-medieval text-amber-500 mb-2">Criar Herói</h1>
+                                <p className="text-zinc-400 text-sm">Sua lenda começa aqui.</p>
                             </div>
-                            <button onClick={() => onCriar({ nome, raca, classe })} disabled={!nome} className="w-full bg-amber-600 hover:bg-amber-500 text-black font-bold p-4 rounded-xl mt-4">JOGAR</button>
+
+                            {/* Nome Input */}
+                            <div>
+                                <label className="block text-xs uppercase font-bold text-zinc-500 mb-1">Nome do Herói</label>
+                                <input
+                                    className="w-full bg-zinc-900 border border-zinc-700 p-3 rounded-lg text-white focus:border-amber-500 outline-none transition-colors font-medieval text-lg placeholder-zinc-700"
+                                    value={nome}
+                                    onChange={e => setNome(e.target.value)}
+                                    placeholder="Ex: Aragorn"
+                                />
+                            </div>
+
+                            {/* Race Selector Grid */}
+                            <div>
+                                <label className="block text-xs uppercase font-bold text-zinc-500 mb-2">Escolha sua Raça</label>
+                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                                    {Object.entries(RACAS).map(([key, data]) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setRaca(key)}
+                                            className={`p-2 rounded-lg border transition-all flex flex-col items-center justify-center gap-1 ${raca === key ? 'bg-amber-900/40 border-amber-500 scale-105 shadow-lg shadow-amber-900/20' : 'bg-zinc-900/40 border-white/5 hover:bg-zinc-800 hover:border-white/10'}`}
+                                            title={data.trait.nome}
+                                        >
+                                            <div className="text-2xl">{key === 'Humano' ? '👨' : key === 'Elfo' ? '🧝' : key === 'Anão' ? '🧔' : key === 'Orc' ? '👹' : '👼'}</div>
+                                            <div className={`text-[9px] font-bold uppercase ${raca === key ? 'text-amber-100' : 'text-zinc-500'}`}>{key}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Class Selector */}
+                            <div>
+                                <label className="block text-xs uppercase font-bold text-zinc-500 mb-1">Classe</label>
+                                <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1 customer-scrollbar">
+                                    {Object.keys(CLASSES).filter(k => !['Cavaleiro', 'Arquimago', 'Assassino', 'Cruzado', 'Lich', 'Trovador', 'Sumo-Sacerdote', 'Guardião', 'Sentinela'].includes(k)).map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setClasse(c)}
+                                            className={`p-2 rounded-lg border text-left flex items-center gap-2 transition-all ${classe === c ? 'bg-blue-900/40 border-blue-500' : 'bg-zinc-900/40 border-white/5 hover:bg-zinc-800'}`}
+                                        >
+                                            <span className="text-xl">{CLASSES[c].icon}</span>
+                                            <div className="flex flex-col">
+                                                <span className={`text-xs font-bold leading-none ${classe === c ? 'text-blue-100' : 'text-zinc-300'}`}>{c}</span>
+                                                <span className="text-[9px] text-zinc-500 leading-none mt-0.5">{CLASSES[c].recurso.nome}</span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Side: Preview */}
+                        <div className="w-full md:w-72 bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col">
+                            <h3 className="text-zinc-400 text-xs uppercase font-bold mb-4 text-center">Resumo</h3>
+
+                            <div className="flex-1 flex flex-col items-center justify-center mb-6">
+                                <div className="text-6xl mb-4 animate-float">{CLASSES[classe].icon}</div>
+                                <div className="text-xl font-bold text-white max-w-full truncate px-2">{nome || "Herói"}</div>
+                                <div className="text-sm text-amber-500">{raca} {classe}</div>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="bg-amber-900/20 p-3 rounded border border-amber-500/20">
+                                    <div className="text-xs text-amber-500 font-bold uppercase mb-1">Traço Racial</div>
+                                    <div className="font-bold text-zinc-200 text-sm">{racaAtual.trait.nome}</div>
+                                    <p className="text-xs text-zinc-400 mt-1">{racaAtual.trait.desc}</p>
+                                </div>
+
+                                <div className="bg-blue-900/20 p-3 rounded border border-blue-500/20">
+                                    <div className="text-xs text-blue-400 font-bold uppercase mb-1">Especialidade</div>
+                                    <p className="text-xs text-zinc-400">{CLASSES[classe].description}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-auto flex gap-3">
+                                <button onClick={onVoltar} className="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg font-bold text-zinc-400 text-sm transition-colors border border-zinc-700 hover:text-zinc-200">Voltar</button>
+                                <button
+                                    onClick={() => onCriar({ nome, raca, classe })}
+                                    disabled={!nome}
+                                    className="flex-1 bg-gradient-to-r from-amber-700 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white font-bold p-3 rounded-lg text-sm transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+                                >
+                                    INICIAR JORNADA
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1926,7 +2278,7 @@
 
         const Barra = ({ label, atual, max, cor }) => (<div><div className="flex justify-between text-[10px] uppercase font-bold text-zinc-500"><span>{label}</span><span>{Math.ceil(atual)}/{max}</span></div><div className="h-1.5 bg-black/40 rounded-full overflow-hidden"><div className={`h-full ${cor}`} style={{ width: `${Math.min(100, (atual / max) * 100)}%` }}></div></div></div>);
         const Stat = ({ icone, valor, label }) => (<div className="bg-white/5 p-2 rounded-lg border border-white/5"><div className="text-lg">{icone}</div><div className="font-bold text-white">{valor}</div><div className="text-[9px] text-zinc-500">{label}</div></div>);
-        const BtnCidade = ({ icone, label, onClick }) => (<button onClick={onClick} className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg border border-white/10 hover:border-amber-500/50 transition-all text-sm font-bold"><span className="text-lg">{icone}</span> <span className="hidden md:inline">{label}</span></button>);
+        const BtnCidade = ({ icone, label, onClick, disabled }) => (<button onClick={onClick} disabled={disabled} className={`flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg border border-white/10 hover:border-amber-500/50 transition-all text-sm font-bold ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}><span className="text-lg">{icone}</span> <span className="hidden md:inline">{label}</span></button>);
 
         // Error Handler para capturar tela preta
         window.onerror = function (message, source, lineno, colno, error) {
